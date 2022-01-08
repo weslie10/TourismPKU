@@ -5,27 +5,28 @@
             <div class="card shadow mb-4">
                 <div class="card-body">
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-4 text-dark">Tabel Rute</h1>
+                    <h1 class="h3 mb-4 text-dark">Tabel Jam Rute</h1>
 
-                    <a href="<?= site_url('rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
-                    <h6 class="text-dark mb-4">NB: untuk menambahkan dan menghapus rute, silahkan menekan tombol lihat peta</h6>
+                    <a href="<?= site_url('jam_rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
 
                     <div class="table-responsive">
-                        <table class="table table-bordered" id="table-rute" width="100%" cellspacing="0">
+                        <table class="table table-bordered" id="table-jam-rute" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Titik Awal</th>
-                                    <th>Titik Akhir</th>
+                                    <th>Jam</th>
+                                    <th>Rute ID</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php $no = 1; ?>
-                                <?php foreach ($listRute as $rute) : ?>
+                                <?php foreach ($listJamRute as $jamRute) : ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
-                                        <td><?= $rute->titik_awal ?></td>
-                                        <td><?= $rute->titik_akhir ?></td>
+                                        <td><?= $jamRute->jam ?></td>
+                                        <td><?= $jamRute->rute_id ?></td>
+                                        <td><?= $jamRute->status ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

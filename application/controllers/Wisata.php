@@ -84,6 +84,8 @@ class Wisata extends CI_Controller
 			} else {
 				echo "<script>alert('Gagal');history.go(-1);</script>";
 			}
+		} else {
+			echo "<script>alert('" . $upload["error"]["error"] . "');</script>";
 		}
 	}
 
@@ -144,7 +146,7 @@ class Wisata extends CI_Controller
 		$new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
 
 		$config['upload_path']          = './uploads/';
-		$config['allowed_types']        = 'jpg|png';
+		$config['allowed_types']        = 'jpg|jpeg|png|PNG';
 		$config['max_size']             = 2048;
 		$config['file_name']            = $new_name;
 

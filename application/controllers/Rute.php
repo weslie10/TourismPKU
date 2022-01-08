@@ -15,7 +15,7 @@ class Rute extends CI_Controller
 	{
 		$listRute = $this->Rute_model->get_all();
 		$data = [
-			"title" => "Table  Rute",
+			"title" => "Table Rute",
 			"active" => "rute",
 			"listRute" => $listRute,
 		];
@@ -25,7 +25,7 @@ class Rute extends CI_Controller
 	public function tambah()
 	{
 		$data = [
-			"title" => "Tambah  Rute",
+			"title" => "Tambah Rute",
 			"active" => "rute",
 		];
 		loadViews($this, 'rute/tambah', $data);

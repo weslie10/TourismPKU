@@ -53,7 +53,7 @@ const postData = async (url, data) => {
 }
 
 if (document.getElementById('map')) {
-    const map = L.map('map').setView([0.501947, 101.443751], 12);
+    let map = L.map('map').setView([0.501947, 101.443751], 12);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoid2VzbGllMTAiLCJhIjoiY2t5MTBydnV2MDZ5YTJ3bXI1anRlNnEyZyJ9.LK5NkKV6Yq3lTLBVuE_bzg', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -357,5 +357,155 @@ if (document.getElementById('map')) {
                 alert('Belum ada rute')
             }
         });
+    } else if (table == "jam_rute") {
+        const SideBar = document.getElementById('side-bar');
+        
+        const jamRuteModal = new bootstrap.Modal(document.getElementById("jamRuteModal"), {
+            keyboard: false
+        })
+        const modalTitle = document.getElementById('modal-title');
+        const modalBtn = document.getElementById('modal-btn');
+        const status = document.getElementsByClassName('status');
+
+        let markerGroup = L.layerGroup().addTo(map);
+
+        const reloadLine = () => {
+            lineGroup = L.layerGroup().addTo(map);
+            fetchData(`${BASE_URL}rute/all`).then(data=>{
+                data.forEach(titik => {
+                    const {id, lat_awal, id_kedua, long_awal, lat_akhir, long_akhir} = titik;
+                    if (id_kedua != null) {
+                        const line = L.polyline([
+                            [lat_awal, long_awal],
+                            [lat_akhir, long_akhir]
+                        ], {color: 'grey'}).addTo(lineGroup);
+                        line.id = id;
+                        line.id_kedua = id_kedua
+                        line.addEventListener('click', () => {
+                            jamRuteModal.show();
+                            let action = "add";
+                            modalTitle.innerHTML = `Jam di rute ${line.id} dan ${line.id_kedua}`
+                            fetchData(`${BASE_URL}jam_rute/get_by_rute_id/${line.id}`).then(listJam=>{
+                                if (listJam.length > 0) {
+                                    for (let i = 0; i < listJam.length; i++) {
+                                        status[i].value = listJam[i].status;
+                                    }
+                                    action = "update";
+                                } else {
+                                    for (let i = 0; i < status.length; i++) {
+                                        status[i].value = "sepi";
+                                    }
+                                    action = "add";
+                                }
+                            });
+                            modalBtn.addEventListener('click',() => {
+                                let data = [];
+                                for(let i = 0; i < status.length; i++) {
+                                    data.push({
+                                        jam: i+6,
+                                        rute_id: line.id,
+                                        status: status[i].value
+                                    })
+                                }
+                                const data2 = data.map((el)=> {
+                                    return {
+                                        jam: el.jam,
+                                        rute_id: line.id_kedua,
+                                        status: el.status
+                                    }
+                                })
+                                Promise.all([
+                                    postData(`${BASE_URL}jam_rute/${action}`,data),
+                                    postData(`${BASE_URL}jam_rute/${action}`,data2)
+                                ]).then((result) => {
+                                    alert(result[0].message);
+                                });
+                            })
+                        });
+                    } else {
+                        const line = L.polyline([
+                            [lat_awal, long_awal],
+                            [lat_akhir, long_akhir]
+                        ], {color: 'red'}).arrowheads({size:"10px"}).addTo(lineGroup);
+                        line.id = id;
+                        line.addEventListener('click', () => {
+                            jamRuteModal.show();
+                            let action = "add";
+                            modalTitle.innerHTML = `Jam di rute ${line.id}`
+                            fetchData(`${BASE_URL}jam_rute/get_by_rute_id/${line.id}`).then(listJam=>{
+                                if (listJam.length > 0) {
+                                    for (let i = 0; i < listJam.length; i++) {
+                                        status[i].value = listJam[i].status;
+                                    }
+                                    action = "update";
+                                } else {
+                                    for (let i = 0; i < status.length; i++) {
+                                        status[i].value = "sepi";
+                                    }
+                                    action = "add";
+                                }
+                            });
+                            modalBtn.addEventListener('click', async() => {
+                                let data = [];
+                                for(let i = 0; i < status.length; i++) {
+                                    data.push({
+                                        jam: i+6,
+                                        rute_id: line.id,
+                                        status: status[i].value
+                                    })
+                                }
+                                const result = await postData(`${BASE_URL}jam_rute/${action}`,data);
+                                alert(result.message);
+                            })
+                        });
+                    }
+                });
+            })
+        }
+
+        const reloadPoint = () => {
+            markerGroup = L.layerGroup().addTo(map);
+            fetchData(`${BASE_URL}titik_rute/all`).then(data=>{
+                data.forEach(titik => {
+                    const {id, lat_coord, long_coord} = titik;
+                    const marker = L.marker([lat_coord, long_coord], 
+                        {icon: newIcon}
+                    ).addTo(markerGroup);
+                    marker.id = id;
+                });
+            });
+        }
+
+        
+        reloadPoint();
+        reloadLine();
+    } else if (table == "wisata") {
+        const lokasiModal = new bootstrap.Modal(document.getElementById("lokasiModal"), {
+            keyboard: false
+        })
+        const modalBtn = document.getElementById('modal-btn');
+        const pilihLokasi = document.getElementById('pilih-lokasi');
+        const latitude = document.getElementById('latitude');
+        const longitude = document.getElementById('longitude');
+        let marker = null;
+        pilihLokasi.addEventListener('click', () => {
+            lokasiModal.show();
+            setTimeout(() => {
+                map.invalidateSize();
+            },300);
+            
+        })
+        map.addEventListener('click', (e) => {
+            const coord = e.latlng;
+            if (marker != null) {
+                marker.remove();
+            }
+            marker = L.marker([coord.lat, coord.lng]).addTo(map);
+            latitude.value = coord.lat;
+            longitude.value = coord.lng;
+        })
+        modalBtn.addEventListener('click',() => {
+            lokasiModal.hide();
+        })
     }
 }

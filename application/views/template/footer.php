@@ -60,4 +60,4 @@
 <script src="<?= base_url() ?>assets/js/maps.js"></script>
 </body>
 
-</html>http://localhost/TourismPKU/assets/vendor/leaflet-arrowheads/src/leaflet.geometryutil.js
+</html>

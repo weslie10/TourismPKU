@@ -4,6 +4,8 @@ const listTable = [
     "#table-kecamatan",
     "#table-kelurahan",
     "#table-titik-rute",
+    "#table-rute",
+    "#table-jam-rute",
 ]
 $(document).ready(() => {
     listTable.forEach(el => {

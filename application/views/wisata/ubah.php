@@ -4,12 +4,12 @@
             <div class="card shadow mb-4">
                 <div class="card-body">
                     <div id="table" class="d-none">wisata</div>
-                    <form class="user" action="<?= site_url("wisata/add") ?>" method="POST" enctype="multipart/form-data">
+                    <form class="user" action="<?= site_url("wisata/change") ?>" method="POST" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="">Nama</label>
-                                    <input type="text" class="form-control form-control-user" name="nama" placeholder="Masukkan nama objek wisata" required>
+                                    <input type="text" class="form-control form-control-user" value="<?= $wisata->nama ?>" name="nama" placeholder="Masukkan nama objek wisata" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Gambar</label>
@@ -17,24 +17,24 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">Alamat (Kecamatan dan Kelurahan termasuk)</label>
-                                    <textarea name="alamat" cols="30" rows="3" class="form-control"></textarea>
+                                    <textarea name="alamat" cols="30" rows="3" class="form-control"><?= $wisata->alamat ?></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Jam Buka</label>
-                                    <textarea name="jam_buka" cols="30" rows="3" class="form-control"></textarea>
+                                    <textarea name="jam_buka" cols="30" rows="3" class="form-control"><?= $wisata->jam_buka ?></textarea>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="">Nomor Telepon</label>
-                                    <input type="text" class="form-control form-control-user" name="no_telp" placeholder="0812-3456-7890" required>
+                                    <input type="text" class="form-control form-control-user" value="<?= $wisata->no_telp ?>" name="no_telp" placeholder="0812-3456-7890" required>
                                 </div>
                                 <div class="form-group">
                                     <?php if (count($listKategori) > 0) : ?>
                                         <label for="">Kategori</label>
                                         <select name="kategori" id="kategori" class="form-control">
                                             <?php foreach ($listKategori as $kategori) : ?>
-                                                <option value="<?= $kategori->id ?>"><?= $kategori->nama ?></option>
+                                                <option value="<?= $kategori->id ?>" <?= $wisata->kategori == $kategori->id ? "selected" : "" ?>><?= $kategori->nama ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     <?php else : ?>
@@ -45,8 +45,8 @@
                                     <label for="">Lokasi</label><br>
                                     <button type="button" class="btn btn-info" id="pilih-lokasi">Pilih lokasi</button>
                                 </div>
-                                <input type="hidden" id="latitude" class="form-control form-control-user" name="lat" required>
-                                <input type="hidden" id="longitude" class="form-control form-control-user" name="long" required>
+                                <input type="hidden" id="latitude" value="<?= $wisata->lat_coord ?>" class="form-control form-control-user" name="lat" required>
+                                <input type="hidden" id="longitude" value="<?= $wisata->long_coord ?>" class="form-control form-control-user" name="long" required>
                             </div>
                         </div>
 

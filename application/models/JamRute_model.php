@@ -14,6 +14,12 @@ class JamRute_model extends CI_Model
         return $this->db->get($this->table)->row();
     }
 
+    function get_by_rute_id($id)
+    {
+        $this->db->where('rute_id', $id);
+        return $this->db->get($this->table)->result();
+    }
+
     function create_jam_rute($dataJamRute)
     {
         return $this->db->insert($this->table, $dataJamRute);
