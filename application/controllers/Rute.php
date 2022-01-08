@@ -34,7 +34,26 @@ class Rute extends CI_Controller
 	public function all()
 	{
 		header('Content-Type: application/json');
-		echo json_encode($this->Rute_model->get_all());
+		$listDuplicate = [];
+		$listRute = $this->Rute_model->get_all();
+		$flag = true;
+		foreach ($listRute as $rute) {
+			if ($rute->id_kedua != null) {
+				if ($flag) {
+					array_push($listDuplicate, $rute->id_kedua);
+					$flag = false;
+				} else 	$flag = true;
+			}
+		}
+		foreach ($listDuplicate as $duplicate) {
+			for ($i = 0; $i < count($listRute); $i++) {
+				if ($listRute[$i]->id_kedua == $duplicate) {
+					array_splice($listRute, $i, 1);
+					break;
+				}
+			}
+		}
+		echo json_encode($listRute);
 	}
 
 	public function add()

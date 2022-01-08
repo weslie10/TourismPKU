@@ -5,7 +5,8 @@ class Rute_model extends CI_Model
 
     function get_all()
     {
-        $this->db->select("rute.*, tr1.lat_coord as lat_awal, tr1.long_coord as long_awal, tr2.lat_coord as lat_akhir, tr2.long_coord as long_akhir");
+        $this->db->select("rute.*, tr1.lat_coord as lat_awal, r.id as id_kedua, tr1.long_coord as long_awal, tr2.lat_coord as lat_akhir, tr2.long_coord as long_akhir");
+        $this->db->join('rute as r', 'rute.titik_awal = r.titik_akhir and rute.titik_akhir = r.titik_awal', 'left');
         $this->db->join('titik_rute as tr1', 'tr1.id = rute.titik_awal');
         $this->db->join('titik_rute as tr2', 'tr2.id = rute.titik_akhir');
         return $this->db->get($this->table)->result();

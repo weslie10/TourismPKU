@@ -55,7 +55,9 @@
 <script src="<?= base_url() ?>assets/js/tables.js"></script>
 
 <script src="<?= base_url() ?>assets/vendor/leaflet/leaflet.js"></script>
+<script src="<?= base_url() ?>assets/vendor/leaflet-arrowheads/src/leaflet-geometryutil.js"></script>
+<script src="<?= base_url() ?>assets/vendor/leaflet-arrowheads/src/leaflet-arrowheads.js"></script>
 <script src="<?= base_url() ?>assets/js/maps.js"></script>
 </body>
 
-</html>
+</html>http://localhost/TourismPKU/assets/vendor/leaflet-arrowheads/src/leaflet.geometryutil.js
