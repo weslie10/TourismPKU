@@ -5,28 +5,28 @@ if (table) {
 const BASE_URL = document.getElementById('base-url').innerText;
 
 const markerHtmlStyles = `
-  width: 1rem;
-  height: 1rem;
+  width: 0.5rem;
+  height: 0.5rem;
   display: block;
-  left: -0.5rem;
-  top: -0.5rem;
+  left: -0.25rem;
+  top: -0.25rem;
   position: relative;
-  border-radius: 1rem 1rem 0;
+  border-radius: 0.5rem 0.5rem 0;
   transform: rotate(45deg);
   border: 1px solid #FFFFFF`
 
 const newIcon = L.divIcon({
   className: "my-custom-pin",
-  iconAnchor: [0, 6],
-  labelAnchor: [-6, 0],
-  popupAnchor: [0, -36],
+  iconAnchor: [0, 3],
+  labelAnchor: [-3, 0],
+  popupAnchor: [0, -18],
   html: `<span style="background-color: red; ${markerHtmlStyles};" />`
 })
 const newIcon2 = L.divIcon({
   className: "my-custom-pin",
-  iconAnchor: [0, 6],
-  labelAnchor: [-6, 0],
-  popupAnchor: [0, -36],
+  iconAnchor: [0, 3],
+  labelAnchor: [-3, 0],
+  popupAnchor: [0, -18],
   html: `<span style="background-color: blue; ${markerHtmlStyles};" />`
 })
 
@@ -118,6 +118,7 @@ if (document.getElementById('map')) {
         tambahTitik.addEventListener('click', async () => {
             if (point.length > 0) {
                 loading.style.display = "inline-block";
+                tambahTitik.disabled = true;
                 const result = await postData(`${BASE_URL}titik_rute/add`,point);
                 if (result.status) {
                     point = [];
@@ -127,6 +128,7 @@ if (document.getElementById('map')) {
                 } else {
                     alert(result.message)
                 }
+                tambahTitik.disabled = false;
                 loading.style.display = "none";
             } else {
                 alert('Belum ada titik rute');
@@ -200,7 +202,7 @@ if (document.getElementById('map')) {
                         const line = L.polyline([
                             [lat_awal, long_awal],
                             [lat_akhir, long_akhir]
-                        ], {color: 'red'}).arrowheads({size:"20px"}).addTo(lineGroup);
+                        ], {color: 'red'}).arrowheads({size:"10px"}).addTo(lineGroup);
                         line.id = id;
                         line.titik_awal = titik_awal;
                         line.titik_akhir = titik_akhir;
@@ -252,63 +254,76 @@ if (document.getElementById('map')) {
                                 };
                                 flag = !flag;
                                 if (way == "one-way") {
-                                    lines.push({
-                                        titik_awal: titik_awal, 
-                                        titik_akhir: titik_akhir
-                                    });
-                                    const line = L.polyline([
-                                        [titik_awal.lat, titik_awal.long],
-                                        [titik_akhir.lat, titik_akhir.long]
-                                    ], {color: 'blue'}).arrowheads({size:"20px"}).addTo(lineGroup);
-                                    line.titik_awal = titik_awal;
-                                    line.titik_akhir = titik_akhir;
-    
-                                    line.addEventListener('click', ()=>{
-                                        SideBar.innerHTML = `<button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
-                                        const hapus = document.getElementById('hapus');
-                        
-                                        hapus.addEventListener('click',async () => {
-                                            line.remove();
-                                            hapus.remove();
-                                            lines = lines.filter((el)=>{
-                                                return el.titik_awal != line.titik_awal || el.titik_akhir != line.titik_akhir;
-                                            });
-                                            SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
-                                        })
+                                    const check = lines.some((el) => {
+                                        return (el.titik_awal.id == titik_awal.id  && el.titik_akhir.id == titik_akhir.id) || (el.titik_awal.id == titik_akhir.id  && el.titik_akhir.id == titik_awal.id);
                                     })
+                                    if (!check) {
+                                        lines.push({
+                                            titik_awal: titik_awal, 
+                                            titik_akhir: titik_akhir
+                                        });
+                                        const line = L.polyline([
+                                            [titik_awal.lat, titik_awal.long],
+                                            [titik_akhir.lat, titik_akhir.long]
+                                        ], {color: 'blue'}).arrowheads({size:"10px"}).addTo(lineGroup);
+                                        line.titik_awal = titik_awal;
+                                        line.titik_akhir = titik_akhir;
+        
+                                        line.addEventListener('click', ()=>{
+                                            SideBar.innerHTML = `<button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
+                                            const hapus = document.getElementById('hapus');
+                            
+                                            hapus.addEventListener('click',async () => {
+                                                line.remove();
+                                                hapus.remove();
+                                                lines = lines.filter((el)=>{
+                                                    return el.titik_awal != line.titik_awal || el.titik_akhir != line.titik_akhir;
+                                                });
+                                                SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
+                                            })
+                                        })
+                                    } else {
+                                        alert('Silahkan cari rute lain');
+                                        reset();
+                                    }
                                 } else {
-                                    lines.push({
-                                        titik_awal: titik_awal, 
-                                        titik_akhir: titik_akhir
-                                    },{
-                                        titik_awal: titik_akhir, 
-                                        titik_akhir: titik_awal
-                                    });
-                                    const line = L.polyline([
-                                        [titik_awal.lat, titik_awal.long],
-                                        [titik_akhir.lat, titik_akhir.long]
-                                    ], {color: 'green'}).addTo(lineGroup);
-                                    line.titik_awal = titik_awal;
-                                    line.titik_akhir = titik_akhir;
-    
-                                    line.addEventListener('click', ()=>{
-                                        SideBar.innerHTML = `<button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
-                                        const hapus = document.getElementById('hapus');
-                        
-                                        hapus.addEventListener('click',async () => {
-                                            line.remove();
-                                            hapus.remove();
-                                            lines = lines.filter((el)=>{
-                                                return (el.titik_awal != line.titik_awal || el.titik_akhir != line.titik_akhir) && (el.titik_awal != line.titik_akhir || el.titik_akhir != line.titik_awal);
-                                            });
-                                            SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
-                                        })
+                                    const check = lines.some((el) => {
+                                        return (el.titik_awal.id == titik_awal.id  && el.titik_akhir.id == titik_akhir.id);
                                     })
+                                    if (!check) {
+                                        lines.push({
+                                            titik_awal: titik_awal, 
+                                            titik_akhir: titik_akhir
+                                        },{
+                                            titik_awal: titik_akhir, 
+                                            titik_akhir: titik_awal
+                                        });
+                                        const line = L.polyline([
+                                            [titik_awal.lat, titik_awal.long],
+                                            [titik_akhir.lat, titik_akhir.long]
+                                        ], {color: 'green'}).addTo(lineGroup);
+                                        line.titik_awal = titik_awal;
+                                        line.titik_akhir = titik_akhir;
+        
+                                        line.addEventListener('click', ()=>{
+                                            SideBar.innerHTML = `<button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
+                                            const hapus = document.getElementById('hapus');
+                            
+                                            hapus.addEventListener('click',async () => {
+                                                line.remove();
+                                                hapus.remove();
+                                                lines = lines.filter((el)=>{
+                                                    return (el.titik_awal != line.titik_awal || el.titik_akhir != line.titik_akhir) && (el.titik_awal != line.titik_akhir || el.titik_akhir != line.titik_awal);
+                                                });
+                                                SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
+                                            })
+                                        })
+                                    } else {
+                                        alert('Silahkan cari rute lain');
+                                        reset();
+                                    }
                                 }
-                                
-                                titik_awal = {};
-                                titik_akhir = {};
-                                SideBar.innerHTML=`<h1 class="text-dark">Silahkan pilih titik pertama</h1>`;
+                                reset();
                             } else {
                                 reset();
                             }
@@ -325,6 +340,7 @@ if (document.getElementById('map')) {
         tambahRute.addEventListener('click', async () => {
             if (lines.length > 0) {
                 loading.style.display = "inline-block";
+                tambahRute.disabled = true;
                 const result = await postData(`${BASE_URL}rute/add`,lines);
                 if (result.status) {
                     lines = [];
@@ -334,6 +350,7 @@ if (document.getElementById('map')) {
                 } else {
                     alert(result.message)
                 }
+                tambahRute.disabled = false;
                 loading.style.display = "none";
                 reset();
             } else {
