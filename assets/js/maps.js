@@ -71,7 +71,7 @@ if (document.getElementById('map')) {
 
         const reloadMap = () => {
             markerGroup = L.layerGroup().addTo(map)
-            fetchData(`${BASE_URL}titik_rute/all`).then(data=>{
+            fetchData(`${BASE_URL}titik_Rute/all`).then(data=>{
                 data.forEach(titik => {
                     const {id, lat_coord, long_coord} = titik;
                     const marker = L.marker([lat_coord, long_coord], {icon: newIcon}).addTo(markerGroup);
@@ -85,7 +85,7 @@ if (document.getElementById('map')) {
                             marker.remove();
                             hapus.remove();
                             SideBar.innerHTML = "";
-                            await fetchData(`${BASE_URL}titik_rute/delete/${marker.id}`);
+                            await fetchData(`${BASE_URL}titik_Rute/delete/${marker.id}`);
                         })
                     })
                 });
@@ -119,7 +119,7 @@ if (document.getElementById('map')) {
             if (point.length > 0) {
                 loading.style.display = "inline-block";
                 tambahTitik.disabled = true;
-                const result = await postData(`${BASE_URL}titik_rute/add`,point);
+                const result = await postData(`${BASE_URL}titik_Rute/add`,point);
                 if (result.status) {
                     point = [];
                     map.removeLayer(markerGroup);
@@ -224,7 +224,7 @@ if (document.getElementById('map')) {
 
         const reloadPoint = () => {
             markerGroup = L.layerGroup().addTo(map);
-            fetchData(`${BASE_URL}titik_rute/all`).then(data=>{
+            fetchData(`${BASE_URL}titik_Rute/all`).then(data=>{
                 data.forEach(titik => {
                     const {id, lat_coord, long_coord} = titik;
                     const marker = L.marker([lat_coord, long_coord], 
@@ -385,7 +385,7 @@ if (document.getElementById('map')) {
                             jamRuteModal.show();
                             let action = "add";
                             modalTitle.innerHTML = `Jam di rute ${line.id} dan ${line.id_kedua}`
-                            fetchData(`${BASE_URL}jam_rute/get_by_rute_id/${line.id}`).then(listJam=>{
+                            fetchData(`${BASE_URL}jam_Rute/get_by_rute_id/${line.id}`).then(listJam=>{
                                 if (listJam.length > 0) {
                                     for (let i = 0; i < listJam.length; i++) {
                                         status[i].value = listJam[i].status;
@@ -415,8 +415,8 @@ if (document.getElementById('map')) {
                                     }
                                 })
                                 Promise.all([
-                                    postData(`${BASE_URL}jam_rute/${action}`,data),
-                                    postData(`${BASE_URL}jam_rute/${action}`,data2)
+                                    postData(`${BASE_URL}jam_Rute/${action}`,data),
+                                    postData(`${BASE_URL}jam_Rute/${action}`,data2)
                                 ]).then((result) => {
                                     alert(result[0].message);
                                 });
@@ -432,7 +432,7 @@ if (document.getElementById('map')) {
                             jamRuteModal.show();
                             let action = "add";
                             modalTitle.innerHTML = `Jam di rute ${line.id}`
-                            fetchData(`${BASE_URL}jam_rute/get_by_rute_id/${line.id}`).then(listJam=>{
+                            fetchData(`${BASE_URL}jam_Rute/get_by_rute_id/${line.id}`).then(listJam=>{
                                 if (listJam.length > 0) {
                                     for (let i = 0; i < listJam.length; i++) {
                                         status[i].value = listJam[i].status;
@@ -454,7 +454,7 @@ if (document.getElementById('map')) {
                                         status: status[i].value
                                     })
                                 }
-                                const result = await postData(`${BASE_URL}jam_rute/${action}`,data);
+                                const result = await postData(`${BASE_URL}jam_Rute/${action}`,data);
                                 alert(result.message);
                             })
                         });
@@ -465,7 +465,7 @@ if (document.getElementById('map')) {
 
         const reloadPoint = () => {
             markerGroup = L.layerGroup().addTo(map);
-            fetchData(`${BASE_URL}titik_rute/all`).then(data=>{
+            fetchData(`${BASE_URL}titik_Rute/all`).then(data=>{
                 data.forEach(titik => {
                     const {id, lat_coord, long_coord} = titik;
                     const marker = L.marker([lat_coord, long_coord], 

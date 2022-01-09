@@ -7,7 +7,7 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-4 text-dark">Tabel Jam Rute</h1>
 
-                    <a href="<?= site_url('jam_rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
+                    <a href="<?= site_url('jam_Rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
 
                     <div class="table-responsive">
                         <table class="table table-bordered" id="table-jam-rute" width="100%" cellspacing="0">

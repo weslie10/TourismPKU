@@ -70,7 +70,7 @@
             </li>
 
             <li class="nav-item <?= ($active == "titik_rute") ? "active" : "" ?>">
-                <a class="nav-link" href="<?= site_url('titik_rute') ?>">
+                <a class="nav-link" href="<?= site_url('titik_Rute') ?>">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Tabel Titik Rute</span>
                 </a>
@@ -84,7 +84,7 @@
             </li>
 
             <li class="nav-item <?= ($active == "jam_rute") ? "active" : "" ?>">
-                <a class="nav-link" href="<?= site_url('jam_rute') ?>">
+                <a class="nav-link" href="<?= site_url('jam_Rute') ?>">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Tabel Jam Rute</span>
                 </a>

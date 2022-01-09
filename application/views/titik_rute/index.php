@@ -7,7 +7,7 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-4 text-dark">Tabel Titik Rute</h1>
 
-                    <a href="<?= site_url('titik_rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
+                    <a href="<?= site_url('titik_Rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
                     <h6 class="text-dark mb-4">NB: untuk menambahkan dan menghapus titik rute, silahkan menekan tombol lihat peta</h6>
 
                     <div class="table-responsive">
