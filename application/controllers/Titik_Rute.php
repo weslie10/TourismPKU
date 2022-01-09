@@ -19,7 +19,7 @@ class Titik_Rute extends CI_Controller
 			"active" => "titik_rute",
 			"listTitikRute" => $listTitikRute,
 		];
-		loadViews($this, 'titik_Rute/index', $data);
+		loadViews($this, 'titik_rute/index', $data);
 	}
 
 	public function tambah()
@@ -28,7 +28,7 @@ class Titik_Rute extends CI_Controller
 			"title" => "Tambah Titik Rute",
 			"active" => "titik_rute",
 		];
-		loadViews($this, 'titik_Rute/tambah', $data);
+		loadViews($this, 'titik_rute/tambah', $data);
 	}
 
 	public function all()
