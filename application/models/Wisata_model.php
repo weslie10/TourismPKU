@@ -5,6 +5,8 @@ class Wisata_model extends CI_Model
 
     function get_all()
     {
+        $this->db->select('wisata.*, k.nama as nama_kategori');
+        $this->db->join('kategori k', 'k.id = wisata.kategori');
         return $this->db->get($this->table)->result();
     }
 

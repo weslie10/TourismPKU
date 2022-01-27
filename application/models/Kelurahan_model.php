@@ -16,6 +16,12 @@ class Kelurahan_model extends CI_Model
         return $this->db->get($this->table)->row();
     }
 
+    function get_by_kecamatan($id)
+    {
+        $this->db->where("kecamatan_id", $id);
+        return $this->db->get($this->table)->result();
+    }
+
     function create_kelurahan($dataKelurahan)
     {
         return $this->db->insert($this->table, $dataKelurahan);

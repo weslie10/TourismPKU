@@ -53,7 +53,11 @@ class Rute extends CI_Controller
 				}
 			}
 		}
-		echo json_encode($listRute);
+		if (count($listRute) > 0) {
+			echo json_encode(["status" => "success", "data" => $listRute]);
+		} else {
+			echo json_encode(["status" => "empty", "data" => $listRute]);
+		}
 	}
 
 	public function add()

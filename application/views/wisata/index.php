@@ -29,11 +29,11 @@
                             <tr>
                                 <td><?= $no++ ?></td>
                                 <td><?= $wisata->nama ?></td>
-                                <td><?= $wisata->gambar ?></td>
+                                <td><img src="<?= base_url($wisata->gambar) ?>" class="img-fluid"></td>
                                 <td><?= $wisata->alamat ?></td>
                                 <td><?= $wisata->jam_buka ?></td>
                                 <td><?= $wisata->no_telp ?></td>
-                                <td><?= $wisata->kategori ?></td>
+                                <td><?= $wisata->nama_kategori ?></td>
                                 <td><?= $wisata->lat_coord ?></td>
                                 <td><?= $wisata->long_coord ?></td>
                                 <td><a href="<?= site_url('wisata/ubah/' . $wisata->id) ?>">Ubah</a> |

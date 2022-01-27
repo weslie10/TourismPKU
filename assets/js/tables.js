@@ -5,7 +5,7 @@ const listTable = [
     "#table-kelurahan",
     "#table-titik-rute",
     "#table-rute",
-    "#table-jam-rute",
+    "#table-status-rute",
 ]
 $(document).ready(() => {
     listTable.forEach(el => {

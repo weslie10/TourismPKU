@@ -25,7 +25,7 @@
                     <div class="row">
                         <div class="col">
                             <div class="card" style="height: 40vh;">
-                                <div class="card-body" id="side-bar">
+                                <div class="card-body overflow-auto" id="side-bar">
                                 </div>
                             </div>
                         </div>

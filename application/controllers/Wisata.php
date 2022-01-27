@@ -10,6 +10,8 @@ class Wisata extends CI_Controller
 		$this->load->library('session');
 		$this->load->model('Wisata_model');
 		$this->load->model('Kategori_model');
+		$this->load->model('Kecamatan_model');
+		$this->load->model('Kelurahan_model');
 	}
 
 	public function index()
@@ -23,13 +25,28 @@ class Wisata extends CI_Controller
 		loadViews($this, 'wisata/index', $data);
 	}
 
+	public function all()
+	{
+		header('Content-Type: application/json');
+		$listWisata = $this->Wisata_model->get_all();
+		if (count($listWisata) > 0) {
+			echo json_encode(["status" => "success", "data" => $listWisata]);
+		} else {
+			echo json_encode(["status" => "empty", "data" => $listWisata]);
+		}
+	}
+
 	public function tambah()
 	{
 		$listKategori = $this->Kategori_model->get_all();
+		$listKecamatan = $this->Kecamatan_model->get_all();
+		$listKelurahan = $this->Kelurahan_model->get_all();
 		$data = [
 			"title" => "Tambah Data Wisata",
 			"active" => "wisata",
 			"listKategori" => $listKategori,
+			"listKecamatan" => $listKecamatan,
+			"listKelurahan" => $listKelurahan,
 		];
 		loadViews($this, 'wisata/tambah', $data);
 	}
@@ -37,12 +54,16 @@ class Wisata extends CI_Controller
 	public function ubah($id)
 	{
 		$listKategori = $this->Kategori_model->get_all();
+		$listKecamatan = $this->Kecamatan_model->get_all();
+		$listKelurahan = $this->Kelurahan_model->get_all();
 		$wisata = $this->Wisata_model->get_by_id($id);
 		$data = [
 			"title" => "Ubah Data Wisata",
 			"active" => "wisata",
 			"wisata" => $wisata,
 			"listKategori" => $listKategori,
+			"listKecamatan" => $listKecamatan,
+			"listKelurahan" => $listKelurahan,
 		];
 		loadViews($this, 'wisata/ubah', $data);
 	}
@@ -61,11 +82,15 @@ class Wisata extends CI_Controller
 		if ($upload["status"]) {
 			$nama = $this->input->post('nama');
 			$alamat = $this->input->post('alamat');
+			$kecamatan = $this->input->post('kecamatan');
+			$kelurahan = $this->input->post('kelurahan');
 			$jam_buka = $this->input->post('jam_buka');
 			$no_telp = $this->input->post('no_telp');
 			$kategori = $this->input->post('kategori');
 			$lat = $this->input->post('lat');
 			$long = $this->input->post('long');
+
+			$alamat = $alamat . ", Kecamatan " . $kecamatan . ", Kelurahan " . $kelurahan;
 
 			$data = [
 				"nama" => $nama,
@@ -145,7 +170,7 @@ class Wisata extends CI_Controller
 	{
 		$new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
 
-		$config['upload_path']          = './uploads/';
+		$config['upload_path']          = 'uploads/';
 		$config['allowed_types']        = 'jpg|jpeg|png|PNG';
 		$config['max_size']             = 2048;
 		$config['file_name']            = $new_name;

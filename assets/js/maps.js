@@ -68,6 +68,7 @@ if (document.getElementById('map')) {
         const SideBar = document.getElementById('side-bar');
         const loading = document.getElementById('loading');
         let markerGroup = L.layerGroup().addTo(map);
+        let objekWisata = L.layerGroup().addTo(map);
 
         const reloadMap = () => {
             markerGroup = L.layerGroup().addTo(map)
@@ -89,6 +90,33 @@ if (document.getElementById('map')) {
                         })
                     })
                 });
+            });
+            objekWisata = L.layerGroup().addTo(map)
+            fetchData(`${BASE_URL}wisata/all`).then(data=>{
+                if (data.status == "success") {
+                    data.data.forEach(wisata => {
+                        const marker = L.marker([wisata.lat_coord,wisata.long_coord]).addTo(objekWisata);
+                        marker.id = wisata.id;
+                        marker.nama = wisata.nama
+                        marker.gambar = wisata.gambar;
+                        marker.alamat = wisata.alamat;
+                        marker.jam_buka = wisata.jam_buka;
+                        marker.no_telp = wisata.no_telp;
+                        marker.kategori = wisata.kategori;
+
+                        marker.addEventListener('click',() => {
+                            SideBar.innerHTML = `
+                            <h6 class="text-dark">Id: ${marker.id}</h6>
+                            <h6 class="text-dark">Nama: ${marker.nama}</h6>
+                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            <p>Alamat: ${marker.alamat}</p>
+                            <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
+                            <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
+                            <p>Kategori: ${marker.kategori}</p>
+                            `;
+                        })
+                    });
+                }
             });
         }
         
@@ -141,7 +169,8 @@ if (document.getElementById('map')) {
 
         let markerGroup = L.layerGroup().addTo(map),
             lineGroup = L.layerGroup().addTo(map),
-            circleGroup = L.layerGroup().addTo(map);
+            circleGroup = L.layerGroup().addTo(map),
+            objekWisata = L.layerGroup().addTo(map);
         let titik_awal = {}, titik_akhir = {};
         let lines = [];
         let flag = true;
@@ -331,6 +360,34 @@ if (document.getElementById('map')) {
                     })
                 });
             });
+            objekWisata = L.layerGroup().addTo(map)
+            fetchData(`${BASE_URL}wisata/all`).then(data=>{
+                if (data.status == "success") {
+                    data.data.forEach(wisata => {
+                        const marker = L.marker([wisata.lat_coord,wisata.long_coord]).addTo(objekWisata);
+                        marker.id = wisata.id;
+                        marker.nama = wisata.nama
+                        marker.gambar = wisata.gambar;
+                        marker.alamat = wisata.alamat;
+                        marker.jam_buka = wisata.jam_buka;
+                        marker.no_telp = wisata.no_telp;
+                        marker.kategori = wisata.kategori;
+
+                        marker.addEventListener('click',() => {
+                            SideBar.innerHTML = `
+                            <h6 class="text-dark">Id: ${marker.id}</h6>
+                            <h6 class="text-dark">Nama: ${marker.nama}</h6>
+                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            <p>Alamat: ${marker.alamat}</p>
+                            <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
+                            <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
+                            <p>Kategori: ${marker.kategori}</p>
+                            `;
+                        })
+                    });
+                }
+                
+            });
         }
         
         reloadPoint();
@@ -357,17 +414,16 @@ if (document.getElementById('map')) {
                 alert('Belum ada rute')
             }
         });
-    } else if (table == "jam_rute") {
-        const SideBar = document.getElementById('side-bar');
-        
-        const jamRuteModal = new bootstrap.Modal(document.getElementById("jamRuteModal"), {
+    } else if (table == "status_rute") {
+        const statusRuteModal = new bootstrap.Modal(document.getElementById("statusRuteModal"), {
             keyboard: false
         })
+        const hari = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"];
         const modalTitle = document.getElementById('modal-title');
         const modalBtn = document.getElementById('modal-btn');
         const status = document.getElementsByClassName('status');
 
-        let markerGroup = L.layerGroup().addTo(map);
+        let objekWisata = L.layerGroup().addTo(map);
 
         const reloadLine = () => {
             lineGroup = L.layerGroup().addTo(map);
@@ -382,10 +438,10 @@ if (document.getElementById('map')) {
                         line.id = id;
                         line.id_kedua = id_kedua
                         line.addEventListener('click', () => {
-                            jamRuteModal.show();
+                            statusRuteModal.show();
                             let action = "add";
-                            modalTitle.innerHTML = `Jam di rute ${line.id} dan ${line.id_kedua}`
-                            fetchData(`${BASE_URL}jam_Rute/get_by_rute_id/${line.id}`).then(listJam=>{
+                            modalTitle.innerHTML = `Status macet di rute ${line.id} dan ${line.id_kedua}`
+                            fetchData(`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`).then(listJam=>{
                                 if (listJam.length > 0) {
                                     for (let i = 0; i < listJam.length; i++) {
                                         status[i].value = listJam[i].status;
@@ -402,21 +458,23 @@ if (document.getElementById('map')) {
                                 let data = [];
                                 for(let i = 0; i < status.length; i++) {
                                     data.push({
-                                        jam: i+6,
+                                        hari: hari[Math.floor(i/15)],
+                                        jam: (i%15)+6,
                                         rute_id: line.id,
                                         status: status[i].value
                                     })
                                 }
                                 const data2 = data.map((el)=> {
                                     return {
+                                        hari: el.hari,
                                         jam: el.jam,
                                         rute_id: line.id_kedua,
                                         status: el.status
                                     }
                                 })
                                 Promise.all([
-                                    postData(`${BASE_URL}jam_Rute/${action}`,data),
-                                    postData(`${BASE_URL}jam_Rute/${action}`,data2)
+                                    postData(`${BASE_URL}status_Rute/${action}`,data),
+                                    postData(`${BASE_URL}status_Rute/${action}`,data2)
                                 ]).then((result) => {
                                     alert(result[0].message);
                                 });
@@ -429,10 +487,10 @@ if (document.getElementById('map')) {
                         ], {color: 'red'}).arrowheads({size:"10px"}).addTo(lineGroup);
                         line.id = id;
                         line.addEventListener('click', () => {
-                            jamRuteModal.show();
+                            statusRuteModal.show();
                             let action = "add";
-                            modalTitle.innerHTML = `Jam di rute ${line.id}`
-                            fetchData(`${BASE_URL}jam_Rute/get_by_rute_id/${line.id}`).then(listJam=>{
+                            modalTitle.innerHTML = `Status macet di rute ${line.id}`
+                            fetchData(`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`).then(listJam=>{
                                 if (listJam.length > 0) {
                                     for (let i = 0; i < listJam.length; i++) {
                                         status[i].value = listJam[i].status;
@@ -449,12 +507,13 @@ if (document.getElementById('map')) {
                                 let data = [];
                                 for(let i = 0; i < status.length; i++) {
                                     data.push({
-                                        jam: i+6,
+                                        hari: hari[Math.floor(i/15)],
+                                        jam: (i%15)+6,
                                         rute_id: line.id,
                                         status: status[i].value
                                     })
                                 }
-                                const result = await postData(`${BASE_URL}jam_Rute/${action}`,data);
+                                const result = await postData(`${BASE_URL}status_Rute/${action}`,data);
                                 alert(result.message);
                             })
                         });
@@ -464,18 +523,34 @@ if (document.getElementById('map')) {
         }
 
         const reloadPoint = () => {
-            markerGroup = L.layerGroup().addTo(map);
-            fetchData(`${BASE_URL}titik_Rute/all`).then(data=>{
-                data.forEach(titik => {
-                    const {id, lat_coord, long_coord} = titik;
-                    const marker = L.marker([lat_coord, long_coord], 
-                        {icon: newIcon}
-                    ).addTo(markerGroup);
-                    marker.id = id;
-                });
+            objekWisata = L.layerGroup().addTo(map)
+            fetchData(`${BASE_URL}wisata/all`).then(data=>{
+                if (data.status == "success") {
+                    data.data.forEach(wisata => {
+                        const marker = L.marker([wisata.lat_coord,wisata.long_coord]).addTo(objekWisata);
+                        marker.id = wisata.id;
+                        marker.nama = wisata.nama
+                        marker.gambar = wisata.gambar;
+                        marker.alamat = wisata.alamat;
+                        marker.jam_buka = wisata.jam_buka;
+                        marker.no_telp = wisata.no_telp;
+                        marker.kategori = wisata.kategori;
+
+                        marker.addEventListener('click',() => {
+                            SideBar.innerHTML = `
+                            <h6 class="text-dark">Id: ${marker.id}</h6>
+                            <h6 class="text-dark">Nama: ${marker.nama}</h6>
+                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            <p>Alamat: ${marker.alamat}</p>
+                            <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
+                            <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
+                            <p>Kategori: ${marker.kategori}</p>
+                            `;
+                        })
+                    });
+                }
             });
         }
-
         
         reloadPoint();
         reloadLine();

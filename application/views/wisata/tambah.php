@@ -16,18 +16,46 @@
                                     <input type="file" name="gambar" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Alamat (Kecamatan dan Kelurahan termasuk)</label>
-                                    <textarea name="alamat" cols="30" rows="3" class="form-control"></textarea>
-                                </div>
-                                <div class="form-group">
                                     <label for="">Jam Buka</label>
-                                    <textarea name="jam_buka" cols="30" rows="3" class="form-control"></textarea>
+                                    <textarea name="jam_buka" id="editor"></textarea>
                                 </div>
                             </div>
                             <div class="col-6">
+
+                                <div class="form-group">
+                                    <label for="">Alamat</label>
+                                    <textarea name="alamat" cols="30" rows="2" class="form-control" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <?php if (count($listKecamatan) > 0) : ?>
+                                        <label for="">Kecamatan</label>
+                                        <input type="hidden" name="kecamatan" id="h-kecamatan">
+                                        <select id="kecamatan" class="form-control">
+                                            <option value="-1">Silahkan pilih kecamatannya</option>
+                                            <?php foreach ($listKecamatan as $kecamatan) : ?>
+                                                <option value="<?= $kecamatan->id ?>"><?= $kecamatan->nama ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php else : ?>
+                                        <h5>Harap masukkan kecamatannya terlebih dahulu</h5>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="form-group">
+                                    <?php if (count($listKelurahan) > 0) : ?>
+                                        <label for="">Kelurahan</label>
+                                        <select name="kelurahan" id="kelurahan" class="form-control">
+                                            <option value="">Silahkan pilih kelurahannya</option>
+                                            <?php foreach ($listKelurahan as $kelurahan) : ?>
+                                                <option value="<?= $kelurahan->nama ?>"><?= $kelurahan->nama ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php else : ?>
+                                        <h5>Harap masukkan kelurahannya terlebih dahulu</h5>
+                                    <?php endif; ?>
+                                </div>
                                 <div class="form-group">
                                     <label for="">Nomor Telepon</label>
-                                    <input type="text" class="form-control form-control-user" name="no_telp" placeholder="0812-3456-7890" required>
+                                    <input type="text" class="form-control form-control-user" name="no_telp" placeholder="0812-3456-7890">
                                 </div>
                                 <div class="form-group">
                                     <?php if (count($listKategori) > 0) : ?>
@@ -75,8 +103,34 @@
         </div>
     </div>
 </div>
+<script src="<?= base_url() ?>assets/vendor/ckeditor5-build-classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#editor'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>
 <script>
     const tambah = document.getElementById('tambah');
     const kategori = document.getElementById('kategori');
-    tambah.disabled = kategori.children.length == 0;
+    const kecamatan = document.getElementById('kecamatan');
+    const kelurahan = document.getElementById('kelurahan');
+    const hKecamatan = document.getElementById('h-kecamatan');
+    tambah.disabled = kategori.children.length == 0 && kecamatan.children.length == 0 && kelurahan.children.length == 0;
+    kecamatan.addEventListener('change', (e) => {
+        hKecamatan.value = kecamatan.options[kecamatan.selectedIndex].text;
+        fetch(`${BASE_URL}kelurahan/get_data_by_kecamatan_id/${e.target.value}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    kelurahan.innerHTML = "";
+                    data.forEach(el => {
+                        kelurahan.innerHTML += `<option value="${el.nama}">${el.nama}</option>`
+                    });
+                } else {
+                    kelurahan.innerHTML = `<option value="">Tidak ada kelurahannya, silahkan pilih kecamatan lain</option>`;
+                }
+            })
+    })
 </script>

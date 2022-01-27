@@ -34,7 +34,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= site_url('wisata') ?>">
                 <div class="sidebar-brand-text mx-3">TourismPKU</div>
             </a>
 
@@ -83,10 +83,10 @@
                 </a>
             </li>
 
-            <li class="nav-item <?= ($active == "jam_rute") ? "active" : "" ?>">
-                <a class="nav-link" href="<?= site_url('jam_Rute') ?>">
+            <li class="nav-item <?= ($active == "status_rute") ? "active" : "" ?>">
+                <a class="nav-link" href="<?= site_url('status_Rute') ?>">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Tabel Jam Rute</span>
+                    <span>Tabel Status Rute</span>
                 </a>
             </li>
 

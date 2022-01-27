@@ -23,6 +23,12 @@ class Kelurahan extends CI_Controller
 		loadViews($this, 'kelurahan/index', $data);
 	}
 
+	public function get_data_by_kecamatan_id($id)
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->Kelurahan_model->get_by_kecamatan($id));
+	}
+
 	public function tambah()
 	{
 		$listKecamatan = $this->Kecamatan_model->get_all();

@@ -47,7 +47,7 @@
                     </div>
                     <div style="height: 2vh;"></div>
                     <div class="card" style="height: 30vh;">
-                        <div class="card-body" id="side-bar">
+                        <div class="card-body overflow-auto" id="side-bar">
                         </div>
                     </div>
                     <div style="height: 2vh;"></div>
