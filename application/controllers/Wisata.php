@@ -36,6 +36,13 @@ class Wisata extends CI_Controller
 		}
 	}
 
+	public function data_by_id($id)
+	{
+		header('Content-Type: application/json');
+		$wisata = $this->Wisata_model->get_by_id($id);
+		echo json_encode(["status" => "success", "data" => $wisata]);
+	}
+
 	public function tambah()
 	{
 		$listKategori = $this->Kategori_model->get_all();
