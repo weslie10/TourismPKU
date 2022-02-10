@@ -14,7 +14,7 @@ class Wisata_model extends CI_Model
     {
         $this->db->select('wisata.*, k.nama as nama_kategori');
         $this->db->join('kategori k', 'k.id = wisata.kategori');
-        $this->db->where('id', $id);
+        $this->db->where('wisata.id', $id);
         return $this->db->get($this->table)->row();
     }
 
