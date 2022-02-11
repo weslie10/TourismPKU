@@ -12,6 +12,12 @@ class Rute_model extends CI_Model
         return $this->db->get($this->table)->result();
     }
 
+    function get_last_id()
+    {
+        $this->db->select_max('id');
+        return $this->db->get($this->table)->row();
+    }
+
     function get_by_id($id)
     {
         $this->db->where('id', $id);
@@ -26,6 +32,12 @@ class Rute_model extends CI_Model
     function update_rute($dataRute, $where)
     {
         return $this->db->update($this->table, $dataRute, $where);
+    }
+
+    function delete_titik($id)
+    {
+        $this->db->where("titik_awal = $id or titik_akhir = $id");
+        return $this->db->delete($this->table);
     }
 
     function delete_rute($where)

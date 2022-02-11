@@ -9,6 +9,7 @@ class Titik_Rute extends CI_Controller
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->model('TitikRute_model');
+		$this->load->model('Rute_model');
 	}
 
 	public function index()
@@ -55,6 +56,7 @@ class Titik_Rute extends CI_Controller
 	public function delete($id)
 	{
 		header('Content-Type: application/json');
+		$this->Rute_model->delete_titik($id);
 		$this->TitikRute_model->delete_titik_rute(["id" => $id]);
 		echo json_encode(['status' => true, "message" => "Berhasil menghapus titik rute"]);
 	}

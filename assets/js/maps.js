@@ -67,10 +67,11 @@ if (document.getElementById('map')) {
     if(table == "titik_rute") {
         const SideBar = document.getElementById('side-bar');
         const loading = document.getElementById('loading');
-        let markerGroup = L.layerGroup().addTo(map);
-        let objekWisata = L.layerGroup().addTo(map);
+        let markerGroup = L.layerGroup().addTo(map),
+            objekWisata = L.layerGroup().addTo(map),
+            lineGroup = L.layerGroup().addTo(map);
 
-        const reloadMap = () => {
+        const reloadPoint = () => {
             markerGroup = L.layerGroup().addTo(map)
             fetchData(`${BASE_URL}titik_Rute/all`).then(data=>{
                 data.forEach(titik => {
@@ -119,9 +120,39 @@ if (document.getElementById('map')) {
                 }
             });
         }
+
+        const reloadLine = () => {
+            lineGroup = L.layerGroup().addTo(map);
+            fetchData(`${BASE_URL}rute/all`).then(data=>{
+                if (data.status == "success") {
+                    data.data.forEach(titik => {
+                        const {id, titik_awal, titik_akhir, lat_awal, id_kedua, long_awal, lat_akhir, long_akhir} = titik;
+                        if (id_kedua != null) {
+                            const line = L.polyline([
+                                [lat_awal, long_awal],
+                                [lat_akhir, long_akhir]
+                            ], {color: 'grey'}).addTo(lineGroup);
+                            line.id = id;
+                            line.titik_awal = titik_awal;
+                            line.titik_akhir = titik_akhir;
+                            line.id_kedua = id_kedua
+                        } else {
+                            const line = L.polyline([
+                                [lat_awal, long_awal],
+                                [lat_akhir, long_akhir]
+                            ], {color: 'red'}).arrowheads({size:"10px"}).addTo(lineGroup);
+                            line.id = id;
+                            line.titik_awal = titik_awal;
+                            line.titik_akhir = titik_akhir;
+                        }
+                    });
+                }
+            })
+        }
         
         let point = [];
-        reloadMap();
+        reloadPoint();
+        reloadLine();
 
         map.addEventListener('click', (e) => {
             SideBar.innerHTML = "";
@@ -151,7 +182,7 @@ if (document.getElementById('map')) {
                 if (result.status) {
                     point = [];
                     map.removeLayer(markerGroup);
-                    reloadMap();
+                    reloadPoint();
                     alert(result.message);
                 } else {
                     alert(result.message)
@@ -204,50 +235,52 @@ if (document.getElementById('map')) {
         const reloadLine = () => {
             lineGroup = L.layerGroup().addTo(map);
             fetchData(`${BASE_URL}rute/all`).then(data=>{
-                data.forEach(titik => {
-                    const {id, titik_awal, titik_akhir, lat_awal, id_kedua, long_awal, lat_akhir, long_akhir} = titik;
-                    if (id_kedua != null) {
-                        const line = L.polyline([
-                            [lat_awal, long_awal],
-                            [lat_akhir, long_akhir]
-                        ], {color: 'grey'}).addTo(lineGroup);
-                        line.id = id;
-                        line.titik_awal = titik_awal;
-                        line.titik_akhir = titik_akhir;
-                        line.id_kedua = id_kedua
-                        line.addEventListener('click', () => {
-                            SideBar.innerHTML = `<h1>${line.id} dan ${line.id_kedua}</h1><br><button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
-                            const hapus = document.getElementById('hapus');
-            
-                            hapus.addEventListener('click',async () => {
-                                line.remove();
-                                hapus.remove();
-                                SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
-                                await fetchData(`${BASE_URL}rute/delete/${line.id}`);
-                                await fetchData(`${BASE_URL}rute/delete/${line.id_kedua}`);
+                if (data.status == "success") {
+                    data.data.forEach(titik => {
+                        const {id, titik_awal, titik_akhir, lat_awal, id_kedua, long_awal, lat_akhir, long_akhir} = titik;
+                        if (id_kedua != null) {
+                            const line = L.polyline([
+                                [lat_awal, long_awal],
+                                [lat_akhir, long_akhir]
+                            ], {color: 'grey'}).addTo(lineGroup);
+                            line.id = id;
+                            line.titik_awal = titik_awal;
+                            line.titik_akhir = titik_akhir;
+                            line.id_kedua = id_kedua
+                            line.addEventListener('click', () => {
+                                SideBar.innerHTML = `<h1>${line.id} dan ${line.id_kedua}</h1><br><button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
+                                const hapus = document.getElementById('hapus');
+                
+                                hapus.addEventListener('click',async () => {
+                                    line.remove();
+                                    hapus.remove();
+                                    SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
+                                    await fetchData(`${BASE_URL}rute/delete/${line.id}`);
+                                    await fetchData(`${BASE_URL}rute/delete/${line.id_kedua}`);
+                                })
                             })
-                        })
-                    } else {
-                        const line = L.polyline([
-                            [lat_awal, long_awal],
-                            [lat_akhir, long_akhir]
-                        ], {color: 'red'}).arrowheads({size:"10px"}).addTo(lineGroup);
-                        line.id = id;
-                        line.titik_awal = titik_awal;
-                        line.titik_akhir = titik_akhir;
-                        line.addEventListener('click', () => {
-                            SideBar.innerHTML = `<h1>${line.id}</h1><br><button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
-                            const hapus = document.getElementById('hapus');
-            
-                            hapus.addEventListener('click',async () => {
-                                line.remove();
-                                hapus.remove();
-                                SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
-                                await fetchData(`${BASE_URL}rute/delete/${line.id}`);
+                        } else {
+                            const line = L.polyline([
+                                [lat_awal, long_awal],
+                                [lat_akhir, long_akhir]
+                            ], {color: 'red'}).arrowheads({size:"10px"}).addTo(lineGroup);
+                            line.id = id;
+                            line.titik_awal = titik_awal;
+                            line.titik_akhir = titik_akhir;
+                            line.addEventListener('click', () => {
+                                SideBar.innerHTML = `<h1>${line.id}</h1><br><button id="hapus" class="btn btn-primary">Hapus rute ini</button>`;
+                                const hapus = document.getElementById('hapus');
+                
+                                hapus.addEventListener('click',async () => {
+                                    line.remove();
+                                    hapus.remove();
+                                    SideBar.innerHTML = `<h1 class="text-dark">Silahkan pilih titik ${flag ? "pertama" : "kedua"}</h1>`;
+                                    await fetchData(`${BASE_URL}rute/delete/${line.id}`);
+                                })
                             })
-                        })
-                    }
-                });
+                        }
+                    });
+                }
             })
         }
 
@@ -386,7 +419,6 @@ if (document.getElementById('map')) {
                         })
                     });
                 }
-                
             });
         }
         
@@ -582,5 +614,62 @@ if (document.getElementById('map')) {
         modalBtn.addEventListener('click',() => {
             lokasiModal.hide();
         })
-    }
+    } else if (table == "map") {
+        const SideBar = document.getElementById('side-bar');
+        let objekWisata = L.layerGroup().addTo(map);
+        let posisi = L.layerGroup().addTo(map);
+        let lines = L.layerGroup().addTo(map);
+
+        const reloadObjekWisata = () => {
+            objekWisata = L.layerGroup().addTo(map)
+            posisi = L.layerGroup().addTo(map);
+
+            L.marker([0.534155, 101.451561]).addTo(posisi)
+                .bindPopup('This is my position')
+                .openPopup();
+
+            fetchData(`${BASE_URL}wisata/all`).then(data=>{
+                if (data.status == "success") {
+                    data.data.forEach(wisata => {
+                        const marker = L.marker([wisata.lat_coord,wisata.long_coord]).addTo(objekWisata);
+                        marker.id = wisata.id;
+                        marker.nama = wisata.nama
+                        marker.gambar = wisata.gambar;
+                        marker.alamat = wisata.alamat;
+                        marker.jam_buka = wisata.jam_buka;
+                        marker.no_telp = wisata.no_telp;
+                        marker.kategori = wisata.kategori;
+
+                        marker.addEventListener('click',() => {
+                            SideBar.innerHTML = `
+                            <h6 class="text-dark">Id: ${marker.id}</h6>
+                            <h6 class="text-dark">Nama: ${marker.nama}</h6>
+                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            <p>Alamat: ${marker.alamat}</p>
+                            <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
+                            <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
+                            <p>Kategori: ${marker.kategori}</p>
+                            <br>
+                            <button class="btn btn-primary rute" id="${marker.id}">Route</button>
+                            `;
+                            const rute = document.getElementsByClassName("rute");
+                            for(let i = 0; i < rute.length; i++) {
+                                rute[i].addEventListener('click',() => {
+                                    fetchData(`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`).then(data=>{
+                                        console.log(data);
+                                        map.removeLayer(lines);
+                                        lines = L.layerGroup().addTo(map);
+                                        const path = data.path.map((path)=>[parseFloat(path.lat), parseFloat(path.long)]);
+                                        L.polyline(path, {color: 'red'}).addTo(lines);
+                                    });
+                                })
+                            }
+                        })
+                    });
+                }
+            });
+        }
+        
+        reloadObjekWisata();
+    } 
 }
