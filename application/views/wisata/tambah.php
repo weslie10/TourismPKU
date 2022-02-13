@@ -12,8 +12,12 @@
                                     <input type="text" class="form-control form-control-user" name="nama" placeholder="Masukkan nama objek wisata" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Gambar</label>
-                                    <input type="file" name="gambar" required>
+                                    <label for="">Alamat</label>
+                                    <textarea name="alamat" cols="30" rows="2" class="form-control" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Nomor Telepon</label>
+                                    <input type="text" class="form-control form-control-user" name="no_telp" placeholder="0812-3456-7890">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Jam Buka</label>
@@ -21,11 +25,6 @@
                                 </div>
                             </div>
                             <div class="col-6">
-
-                                <div class="form-group">
-                                    <label for="">Alamat</label>
-                                    <textarea name="alamat" cols="30" rows="2" class="form-control" required></textarea>
-                                </div>
                                 <div class="form-group">
                                     <?php if (count($listKecamatan) > 0) : ?>
                                         <label for="">Kecamatan</label>
@@ -54,10 +53,6 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Nomor Telepon</label>
-                                    <input type="text" class="form-control form-control-user" name="no_telp" placeholder="0812-3456-7890">
-                                </div>
-                                <div class="form-group">
                                     <?php if (count($listKategori) > 0) : ?>
                                         <label for="">Kategori</label>
                                         <select name="kategori" id="kategori" class="form-control">
@@ -70,6 +65,10 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="form-group">
+                                    <label for="">rating</label>
+                                    <input type="number" step="0.1" min="0" max="5" class="form-control form-control-user" oninput="javascript: if (this.value > 5) this.value = 5" type="number" name="rating">
+                                </div>
+                                <div class="form-group">
                                     <label for="">Lokasi</label><br>
                                     <button type="button" class="btn btn-info" id="pilih-lokasi">Pilih lokasi</button>
                                 </div>
@@ -77,7 +76,6 @@
                                 <input type="hidden" id="longitude" class="form-control form-control-user" name="long" required>
                             </div>
                         </div>
-
                         <input type="submit" id="tambah" name="tambah" value="Tambah" class="btn btn-primary">
                     </form>
                 </div>

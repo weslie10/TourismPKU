@@ -401,21 +401,44 @@ if (document.getElementById('map')) {
                         marker.id = wisata.id;
                         marker.nama = wisata.nama
                         marker.gambar = wisata.gambar;
+                        marker.background = wisata.background;
                         marker.alamat = wisata.alamat;
                         marker.jam_buka = wisata.jam_buka;
                         marker.no_telp = wisata.no_telp;
                         marker.kategori = wisata.kategori;
+                        marker.rating = wisata.rating;
 
                         marker.addEventListener('click',() => {
+                            let gambar = "";
+                            if (marker.gambar != 0){
+                                gambar = `<img src="${BASE_URL}${marker.background}" class="img-fluid">`;
+                            } else {
+                                gambar = `<p>Tidak ada gambar</p>`;
+                            }
+
                             SideBar.innerHTML = `
                             <h6 class="text-dark">Id: ${marker.id}</h6>
                             <h6 class="text-dark">Nama: ${marker.nama}</h6>
-                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            ${gambar}
                             <p>Alamat: ${marker.alamat}</p>
                             <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
                             <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
                             <p>Kategori: ${marker.kategori}</p>
+                            <br>
+                            <button class="btn btn-primary rute" id="${marker.id}">Route</button>
                             `;
+                            const rute = document.getElementsByClassName("rute");
+                            for(let i = 0; i < rute.length; i++) {
+                                rute[i].addEventListener('click',() => {
+                                    fetchData(`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`).then(data=>{
+                                        console.log(data);
+                                        map.removeLayer(lines);
+                                        lines = L.layerGroup().addTo(map);
+                                        const path = data.path.map((path)=>[parseFloat(path.lat), parseFloat(path.long)]);
+                                        L.polyline(path, {color: 'red'}).addTo(lines);
+                                    });
+                                })
+                            }
                         })
                     });
                 }
@@ -563,21 +586,44 @@ if (document.getElementById('map')) {
                         marker.id = wisata.id;
                         marker.nama = wisata.nama
                         marker.gambar = wisata.gambar;
+                        marker.background = wisata.background;
                         marker.alamat = wisata.alamat;
                         marker.jam_buka = wisata.jam_buka;
                         marker.no_telp = wisata.no_telp;
                         marker.kategori = wisata.kategori;
+                        marker.rating = wisata.rating;
 
                         marker.addEventListener('click',() => {
+                            let gambar = "";
+                            if (marker.gambar != 0){
+                                gambar = `<img src="${BASE_URL}${marker.background}" class="img-fluid">`;
+                            } else {
+                                gambar = `<p>Tidak ada gambar</p>`;
+                            }
+
                             SideBar.innerHTML = `
                             <h6 class="text-dark">Id: ${marker.id}</h6>
                             <h6 class="text-dark">Nama: ${marker.nama}</h6>
-                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            ${gambar}
                             <p>Alamat: ${marker.alamat}</p>
                             <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
                             <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
                             <p>Kategori: ${marker.kategori}</p>
+                            <br>
+                            <button class="btn btn-primary rute" id="${marker.id}">Route</button>
                             `;
+                            const rute = document.getElementsByClassName("rute");
+                            for(let i = 0; i < rute.length; i++) {
+                                rute[i].addEventListener('click',() => {
+                                    fetchData(`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`).then(data=>{
+                                        console.log(data);
+                                        map.removeLayer(lines);
+                                        lines = L.layerGroup().addTo(map);
+                                        const path = data.path.map((path)=>[parseFloat(path.lat), parseFloat(path.long)]);
+                                        L.polyline(path, {color: 'red'}).addTo(lines);
+                                    });
+                                })
+                            }
                         })
                     });
                 }
@@ -635,16 +681,25 @@ if (document.getElementById('map')) {
                         marker.id = wisata.id;
                         marker.nama = wisata.nama
                         marker.gambar = wisata.gambar;
+                        marker.background = wisata.background;
                         marker.alamat = wisata.alamat;
                         marker.jam_buka = wisata.jam_buka;
                         marker.no_telp = wisata.no_telp;
-                        marker.kategori = wisata.kategori;
+                        marker.kategori = wisata.nama_kategori;
+                        marker.rating = wisata.rating;
 
                         marker.addEventListener('click',() => {
+                            let gambar = "";
+                            if (marker.gambar != 0){
+                                gambar = `<img src="${BASE_URL}${marker.background}" class="img-fluid">`;
+                            } else {
+                                gambar = `<p>Tidak ada gambar</p>`;
+                            }
+
                             SideBar.innerHTML = `
                             <h6 class="text-dark">Id: ${marker.id}</h6>
                             <h6 class="text-dark">Nama: ${marker.nama}</h6>
-                            <img src="${BASE_URL}${marker.gambar}" class="img-fluid" />
+                            ${gambar}
                             <p>Alamat: ${marker.alamat}</p>
                             <p>Jam Buka: ${marker.jam_buka ? marker.jam_buka : "tidak ada"}</p>
                             <p>No Telp: ${marker.no_telp ? marker.no_telp : "tidak ada"}</p>
@@ -656,7 +711,7 @@ if (document.getElementById('map')) {
                             for(let i = 0; i < rute.length; i++) {
                                 rute[i].addEventListener('click',() => {
                                     fetchData(`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`).then(data=>{
-                                        console.log(data);
+                                        console.log("ada");
                                         map.removeLayer(lines);
                                         lines = L.layerGroup().addTo(map);
                                         const path = data.path.map((path)=>[parseFloat(path.lat), parseFloat(path.long)]);

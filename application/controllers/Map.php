@@ -40,16 +40,6 @@ class Map extends CI_Controller
 
 	private function printPath($parent, $vertex, $source)
 	{
-		// if ($vertex < 0) {
-		// 	return;
-		// }
-
-		// $this->printPath($parent, $parent[$vertex], $source);
-		// if ($vertex != $source) {
-		// 	echo ", ";
-		// }
-		// array_push($this->paths, $vertex);
-		// echo $vertex;
 		while (true) {
 			if ($vertex < 0) {
 				break;
@@ -113,27 +103,25 @@ class Map extends CI_Controller
 		return $listPath;
 	}
 
-	private function deg2rad($deg)
+	private function getNearestPoint($lat, $long)
 	{
-		return $deg * (pi() / 180);
-	}
-
-	private function getDist($lat1, $long1, $lat2, $long2)
-	{
-		$R = 6371; // Radius of the earth in km
-		$dLat = deg2rad($lat2 - $lat1);  // deg2rad below
-		$dLon = deg2rad($long2 - $long1);
-		$a = sin($dLat / 2) * sin($dLat / 2) +
-			cos($this->deg2rad($lat1)) * cos($this->deg2rad($lat2)) *
-			sin($dLon / 2) * sin($dLon / 2);
-		$c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-		$d = $R * $c; // Distance in km
-		return $d;
-	}
-
-	private function convertDist($radius)
-	{
-		return 0.008994 * $radius;
+		$radius = 0;
+		while (true) {
+			$radius += 0.1;
+			$listTerdekat = $this->TitikRute_model->get_nearest_point($lat, $long, convertDist($radius));
+			if (count($listTerdekat) > 0) {
+				break;
+			}
+		}
+		$min = PHP_FLOAT_MAX;
+		foreach ($listTerdekat as $titik) {
+			$titik->jarak = getDist($titik->lat_coord, $titik->long_coord, $lat, $long);
+			if ($titik->jarak < $min) {
+				$titikTerdekat = $titik;
+				$min = $titik->jarak;
+			}
+		}
+		return $titikTerdekat;
 	}
 
 	public function rute($latPosisi, $longPosisi, $id)
@@ -144,44 +132,13 @@ class Map extends CI_Controller
 		$listRute = $this->Rute_model->get_all();
 
 		foreach ($listRute as $rute) {
-			$rute->jarak = $this->getDist($rute->lat_awal, $rute->long_awal, $rute->lat_akhir, $rute->long_akhir);
+			$rute->jarak = getDist($rute->lat_awal, $rute->long_awal, $rute->lat_akhir, $rute->long_akhir);
 		}
 
 		$tujuan = $this->Wisata_model->get_by_id($id);
 
-		$radius = 0;
-		while (true) {
-			$radius += 0.1;
-			$listTujuanTerdekat = $this->TitikRute_model->get_nearest_point($tujuan->lat_coord, $tujuan->long_coord, $this->convertDist($radius));
-			if (count($listTujuanTerdekat) > 0) {
-				break;
-			}
-		}
-		$min = PHP_FLOAT_MAX;
-		foreach ($listTujuanTerdekat as $titik) {
-			$titik->jarak = $this->getDist($titik->lat_coord, $titik->long_coord, $tujuan->lat_coord, $tujuan->long_coord);
-			if ($titik->jarak < $min) {
-				$tujuanTerdekat = $titik;
-				$min = $titik->jarak;
-			}
-		}
-
-		$radius = 0;
-		while (true) {
-			$radius += 0.1;
-			$listTitikTerdekat = $this->TitikRute_model->get_nearest_point($latPosisi, $longPosisi, $this->convertDist($radius));
-			if (count($listTitikTerdekat) > 0) {
-				break;
-			}
-		}
-		$min = PHP_FLOAT_MAX;
-		foreach ($listTitikTerdekat as $titik) {
-			$titik->jarak = $this->getDist($titik->lat_coord, $titik->long_coord, $latPosisi, $longPosisi);
-			if ($titik->jarak < $min) {
-				$titikTerdekat = $titik;
-				$min = $titik->jarak;
-			}
-		}
+		$tujuanTerdekat = $this->getNearestPoint($tujuan->lat_coord, $tujuan->long_coord);
+		$titikTerdekat = $this->getNearestPoint($latPosisi, $longPosisi);
 
 		$graph = new Graph();
 		$graph->v = count($listTitikRute);

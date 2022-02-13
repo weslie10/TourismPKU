@@ -5,8 +5,9 @@ class Wisata_model extends CI_Model
 
     function get_all()
     {
-        $this->db->select('wisata.*, k.nama as nama_kategori');
+        $this->db->select('wisata.*, k.nama as nama_kategori, g.url as background');
         $this->db->join('kategori k', 'k.id = wisata.kategori');
+        $this->db->join('gambar g', 'g.id = wisata.gambar', 'left');
         return $this->db->get($this->table)->result();
     }
 
@@ -16,6 +17,11 @@ class Wisata_model extends CI_Model
         $this->db->join('kategori k', 'k.id = wisata.kategori');
         $this->db->where('wisata.id', $id);
         return $this->db->get($this->table)->row();
+    }
+
+    function pilih_background($dataWisata, $where)
+    {
+        return $this->db->update($this->table, $dataWisata, $where);
     }
 
     function create_wisata($dataWisata)

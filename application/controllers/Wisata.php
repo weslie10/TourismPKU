@@ -36,6 +36,29 @@ class Wisata extends CI_Controller
 		}
 	}
 
+	public function rekomendasi($lat, $long)
+	{
+		header('Content-Type: application/json');
+		$listWisata = $this->Wisata_model->get_all();
+		foreach ($listWisata as $wisata) {
+			$wisata->jarak = getDist($wisata->lat_coord, $wisata->long_coord, $lat, $long);
+		}
+		for ($i = 0; $i < count($listWisata); $i++) {
+			for ($j = 0; $j < count($listWisata) - 1; $j++) {
+				if ($listWisata[$j]->jarak > $listWisata[$j + 1]->jarak) {
+					$temp = $listWisata[$j];
+					$listWisata[$j] = $listWisata[$j + 1];
+					$listWisata[$j + 1] = $temp;
+				}
+			}
+		}
+		if (count($listWisata) > 0) {
+			echo json_encode(["status" => "success", "data" => $listWisata]);
+		} else {
+			echo json_encode(["status" => "empty", "data" => $listWisata]);
+		}
+	}
+
 	public function data_by_id($id)
 	{
 		header('Content-Type: application/json');
@@ -85,51 +108,18 @@ class Wisata extends CI_Controller
 
 	public function add()
 	{
-		$upload = $this->do_upload("gambar");
-		if ($upload["status"]) {
-			$nama = $this->input->post('nama');
-			$alamat = $this->input->post('alamat');
-			$kecamatan = $this->input->post('kecamatan');
-			$kelurahan = $this->input->post('kelurahan');
-			$jam_buka = $this->input->post('jam_buka');
-			$no_telp = $this->input->post('no_telp');
-			$kategori = $this->input->post('kategori');
-			$lat = $this->input->post('lat');
-			$long = $this->input->post('long');
-
-			$alamat = $alamat . ", Kecamatan " . $kecamatan . ", Kelurahan " . $kelurahan;
-
-			$data = [
-				"nama" => $nama,
-				"gambar" => $upload["pic"],
-				"alamat" => $alamat,
-				"jam_buka" => $jam_buka,
-				"no_telp" => $no_telp,
-				"kategori" => $kategori,
-				"lat_coord" => $lat,
-				"long_coord" => $long,
-			];
-
-			$create = $this->Wisata_model->create_wisata($data);
-			if ($create) {
-				redirect('wisata');
-			} else {
-				echo "<script>alert('Gagal');history.go(-1);</script>";
-			}
-		} else {
-			echo "<script>alert('" . $upload["error"]["error"] . "');</script>";
-		}
-	}
-
-	public function change($id)
-	{
 		$nama = $this->input->post('nama');
 		$alamat = $this->input->post('alamat');
+		$kecamatan = $this->input->post('kecamatan');
+		$kelurahan = $this->input->post('kelurahan');
 		$jam_buka = $this->input->post('jam_buka');
 		$no_telp = $this->input->post('no_telp');
 		$kategori = $this->input->post('kategori');
+		$rating = $this->input->post('rating');
 		$lat = $this->input->post('lat');
 		$long = $this->input->post('long');
+
+		$alamat = $alamat . ", Kecamatan " . $kecamatan . ", Kelurahan " . $kelurahan;
 
 		$data = [
 			"nama" => $nama,
@@ -137,6 +127,41 @@ class Wisata extends CI_Controller
 			"jam_buka" => $jam_buka,
 			"no_telp" => $no_telp,
 			"kategori" => $kategori,
+			"rating" => $rating,
+			"lat_coord" => $lat,
+			"long_coord" => $long,
+		];
+
+		$create = $this->Wisata_model->create_wisata($data);
+		if ($create) {
+			redirect('wisata');
+		} else {
+			echo "<script>alert('Gagal');history.go(-1);</script>";
+		}
+	}
+
+	public function change($id)
+	{
+		$nama = $this->input->post('nama');
+		$alamat = $this->input->post('alamat');
+		$kecamatan = $this->input->post('kecamatan');
+		$kelurahan = $this->input->post('kelurahan');
+		$jam_buka = $this->input->post('jam_buka');
+		$no_telp = $this->input->post('no_telp');
+		$kategori = $this->input->post('kategori');
+		$rating = $this->input->post('rating');
+		$lat = $this->input->post('lat');
+		$long = $this->input->post('long');
+
+		$alamat = $alamat . ", Kecamatan " . $kecamatan . ", Kelurahan " . $kelurahan;
+
+		$data = [
+			"nama" => $nama,
+			"alamat" => $alamat,
+			"jam_buka" => $jam_buka,
+			"no_telp" => $no_telp,
+			"kategori" => $kategori,
+			"rating" => $rating,
 			"lat_coord" => $lat,
 			"long_coord" => $long,
 		];
@@ -149,46 +174,6 @@ class Wisata extends CI_Controller
 			redirect('wisata');
 		} else {
 			echo "<script>alert('Gagal');history.go(-1);</script>";
-		}
-	}
-
-	public function change_picture($id)
-	{
-		$wisata = $this->Wisata_model->get_by_id($id);
-		$upload = $this->do_upload("gambar");
-		if ($upload["status"]) {
-			unlink($wisata->gambar);
-			$data['gambar'] = $upload["pic"];
-		}
-
-		$where = [
-			"id" => $id,
-		];
-
-		$update = $this->Wisata_model->update_wisata($data, $where);
-		if ($update) {
-			redirect('wisata');
-		} else {
-			echo "<script>alert('Gagal');history.go(-1);</script>";
-		}
-	}
-
-	public function do_upload($type)
-	{
-		$new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
-
-		$config['upload_path']          = 'uploads/';
-		$config['allowed_types']        = 'jpg|jpeg|png|PNG';
-		$config['max_size']             = 2048;
-		$config['file_name']            = $new_name;
-
-		$this->load->library('upload', $config);
-
-		if (!$this->upload->do_upload($type)) {
-			$error = array('error' => $this->upload->display_errors());
-			return array("status" => false, "error" => $error);
-		} else {
-			return array("status" => true, "pic" => $config['upload_path'] . $new_name);
 		}
 	}
 }

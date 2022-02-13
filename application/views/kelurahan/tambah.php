@@ -13,7 +13,7 @@
                                 <div class="form-group">
                                     <?php if (count($listKecamatan) > 0) : ?>
                                         <label for="">Kecamatan</label>
-                                        <select name="kecamatan_id" class="form-control">
+                                        <select name="kecamatan_id" id="kecamatan" class="form-control">
                                             <?php foreach ($listKecamatan as $kecamatan) : ?>
                                                 <option value="<?= $kecamatan->id ?>"><?= $kecamatan->nama ?></option>
                                             <?php endforeach; ?>
@@ -34,5 +34,6 @@
 </div>
 <script>
     const tambah = document.getElementById('tambah');
-    tambah.disabled = <?= count($listKecamatan) == 0 ?>
+    const kecamatan = document.getElementById('kecamatan');
+    tambah.disabled = kecamatan.chilren.length == 0;
 </script>

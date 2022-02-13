@@ -1,3 +1,34 @@
+<?php
+$arr = explode(", ", $wisata->alamat);
+$alamat = "";
+$kec = "";
+$kel = "";
+if (count($arr) >= 3) {
+    for ($i = 0; $i < count($arr) - 2; $i++) {
+        $alamat .= $arr[$i];
+    }
+    $kecamatanArr = explode(" ", $arr[count($arr) - 2]);
+    if (count($kecamatanArr) >= 2) {
+        for ($i = 1; $i < count($kecamatanArr); $i++) {
+            if ($i != 1) {
+                $kec .= " ";
+            }
+            $kec .= $kecamatanArr[$i];
+        }
+    }
+    $kelurahanArr = explode(" ", $arr[count($arr) - 1]);
+    if (count($kelurahanArr) >= 2) {
+        for ($i = 1; $i < count($kelurahanArr); $i++) {
+            if ($i != 1) {
+                $kel .= " ";
+            }
+            $kel .= $kelurahanArr[$i];
+        }
+    }
+} else {
+    $alamat = $wisata->alamat;
+}
+?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-6">
@@ -12,12 +43,12 @@
                                     <input type="text" class="form-control form-control-user" value="<?= $wisata->nama ?>" name="nama" placeholder="Masukkan nama objek wisata" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Gambar</label>
-                                    <input type="file" name="gambar">
+                                    <label for="">Alamat</label>
+                                    <textarea name="alamat" cols="30" rows="3" class="form-control"><?= $alamat ?></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Alamat (Kecamatan dan Kelurahan termasuk)</label>
-                                    <textarea name="alamat" cols="30" rows="3" class="form-control"><?= $wisata->alamat ?></textarea>
+                                    <label for="">Nomor Telepon</label>
+                                    <input type="text" class="form-control form-control-user" value="<?= $wisata->no_telp ?>" name="no_telp" placeholder="0812-3456-7890">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Jam Buka</label>
@@ -26,8 +57,31 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label for="">Nomor Telepon</label>
-                                    <input type="text" class="form-control form-control-user" value="<?= $wisata->no_telp ?>" name="no_telp" placeholder="0812-3456-7890">
+                                    <?php if (count($listKecamatan) > 0) : ?>
+                                        <label for="">Kecamatan</label>
+                                        <input type="hidden" name="kecamatan" id="h-kecamatan">
+                                        <select id="kecamatan" class="form-control">
+                                            <option value="-1">Silahkan pilih kecamatannya</option>
+                                            <?php foreach ($listKecamatan as $kecamatan) : ?>
+                                                <option value="<?= $kecamatan->id ?>" <?= $kec == $kecamatan->nama ? "selected" : "" ?>><?= $kecamatan->nama ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php else : ?>
+                                        <h5>Harap masukkan kecamatannya terlebih dahulu</h5>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="form-group">
+                                    <?php if (count($listKelurahan) > 0) : ?>
+                                        <label for="">Kelurahan</label>
+                                        <select name="kelurahan" id="kelurahan" class="form-control">
+                                            <option value="">Silahkan pilih kelurahannya</option>
+                                            <?php foreach ($listKelurahan as $kelurahan) : ?>
+                                                <option value="<?= $kelurahan->nama ?>" <?= $kel == $kelurahan->nama ? "selected" : "" ?>><?= $kelurahan->nama ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php else : ?>
+                                        <h5>Harap masukkan kelurahannya terlebih dahulu</h5>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="form-group">
                                     <?php if (count($listKategori) > 0) : ?>
@@ -40,6 +94,10 @@
                                     <?php else : ?>
                                         <h5>Harap masukkan kategorinya terlebih dahulu</h5>
                                     <?php endif; ?>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">rating</label>
+                                    <input type="number" step="0.1" min="0" max="5" value="<?= $wisata->rating ?>" class="form-control form-control-user" oninput="javascript: if (this.value > 5) this.value = 5" type="number" name="rating">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Lokasi</label><br>
@@ -86,5 +144,23 @@
 <script>
     const ubah = document.getElementById('ubah');
     const kategori = document.getElementById('kategori');
-    ubah.disabled = kategori.children.length == 0;
+    const kecamatan = document.getElementById('kecamatan');
+    const kelurahan = document.getElementById('kelurahan');
+    const hKecamatan = document.getElementById('h-kecamatan');
+    ubah.disabled = kategori.children.length == 0 && kecamatan.children.length == 0 && kelurahan.children.length == 0;
+    kecamatan.addEventListener('change', (e) => {
+        hKecamatan.value = kecamatan.options[kecamatan.selectedIndex].text;
+        fetch(`${BASE_URL}kelurahan/get_data_by_kecamatan_id/${e.target.value}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    kelurahan.innerHTML = "";
+                    data.forEach(el => {
+                        kelurahan.innerHTML += `<option value="${el.nama}">${el.nama}</option>`
+                    });
+                } else {
+                    kelurahan.innerHTML = `<option value="">Tidak ada kelurahannya, silahkan pilih kecamatan lain</option>`;
+                }
+            })
+    })
 </script>
