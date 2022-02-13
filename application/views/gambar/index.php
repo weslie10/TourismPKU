@@ -34,8 +34,7 @@
                                 <td><?= $gambar->nama_wisata ?></td>
                                 <td>
                                     <a href="<?= site_url('gambar/pilih/' . $wisata_id . '/' . $gambar->id) ?>">Pilih Sebagai Background</a> |
-                                    <a href="<?= site_url('gambar/ubah/' . $gambar->id) ?>">Ubah</a> |
-                                    <a href="<?= site_url('gambar/hapus/' . $gambar->id) ?>">Hapus</a>
+                                    <a href="<?= site_url('gambar/hapus/' . $wisata_id . '/' . $gambar->id) ?>">Hapus</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

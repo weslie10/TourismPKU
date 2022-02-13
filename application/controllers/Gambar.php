@@ -49,20 +49,17 @@ class Gambar extends CI_Controller
 
 	public function add($id)
 	{
+		$data = array();
 		if (!empty($_FILES)) {
 			$count = count($_FILES['files']['name']);
 			for ($i = 0; $i < $count; $i++) {
+				$_FILES["file"]['name'] = $_FILES['files']['name'][$i][$i];
+				$_FILES["file"]['type'] = $_FILES['files']['type'][$i][$i];
+				$_FILES["file"]['tmp_name'] = $_FILES['files']['tmp_name'][$i][$i];
+				$_FILES["file"]['error'] = $_FILES['files']['error'][$i][$i];
+				$_FILES["file"]['size'] = $_FILES['files']['size'][$i][$i];
 
-				$_FILES['file']['name'] = $_FILES['files']['name'][$i][0];
-				$_FILES['file']['type'] = $_FILES['files']['type'][$i][0];
-				$_FILES['file']['tmp_name'] = $_FILES['files']['tmp_name'][$i][0];
-				$_FILES['file']['error'] = $_FILES['files']['error'][$i][0];
-				$_FILES['file']['size'] = $_FILES['files']['size'][$i][0];
-
-				$upload = $this->do_upload("file");
-				echo "<pre>";
-				print_r($upload);
-				echo "</pre><br>";
+				$upload = $this->do_upload("file", $id);
 				if ($upload["status"]) {
 					$data = [
 						"url" => $upload["pic"],
@@ -80,9 +77,32 @@ class Gambar extends CI_Controller
 		redirect('gambar/list/' . $wisata);
 	}
 
-	public function do_upload($type)
+	public function hapus($wisataId, $id)
 	{
-		$new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
+		$gambar = $this->Gambar_model->get_by_id($id);
+		$wisata = $this->Wisata_model->get_by_id($wisataId);
+		if ($wisata->gambar == $id) {
+			$this->Wisata_model->update_wisata(["gambar" => 0], ["id" => $wisataId]);
+		}
+		unlink($gambar->url);
+		$this->Gambar_model->delete_gambar(["id" => $id]);
+		redirect('gambar/list/' . $wisataId);
+	}
+
+	public function do_upload($type, $id)
+	{
+		$gambar = $this->Gambar_model->get_last_id()->id;
+		var_dump($gambar);
+		if ($gambar == NULL) {
+			$gambar = 0;
+		}
+		$gambar++;
+		$wisata = $this->Wisata_model->get_by_id($id);
+		$ext = explode('.', $_FILES[$type]['name']);
+		$ext = $ext[count($ext) - 1];
+		$new_name = $wisata->nama . "-" . $gambar . "." . $ext;
+		$new_name = str_replace(" ", "_", $new_name);
+		// $new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
 
 		$config['upload_path']          = 'uploads/';
 		$config['allowed_types']        = 'jpg|jpeg|png';
@@ -90,6 +110,7 @@ class Gambar extends CI_Controller
 		$config['file_name']            = $new_name;
 
 		$this->load->library('upload', $config);
+		$this->upload->initialize($config);
 
 		if (!$this->upload->do_upload($type)) {
 			$error = array('error' => $this->upload->display_errors());

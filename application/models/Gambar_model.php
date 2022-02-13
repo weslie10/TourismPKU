@@ -17,6 +17,12 @@ class Gambar_model extends CI_Model
         return $this->db->get($this->table)->row();
     }
 
+    function get_last_id()
+    {
+        $this->db->select_max('id');
+        return $this->db->get($this->table)->row();
+    }
+
     function create_gambar($dataGambar)
     {
         return $this->db->insert($this->table, $dataGambar);
