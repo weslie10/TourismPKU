@@ -9,6 +9,7 @@ class Wisata extends CI_Controller
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->model('Wisata_model');
+		$this->load->model('Gambar_model');
 		$this->load->model('Kategori_model');
 		$this->load->model('Kecamatan_model');
 		$this->load->model('Kelurahan_model');
@@ -63,7 +64,13 @@ class Wisata extends CI_Controller
 	{
 		header('Content-Type: application/json');
 		$wisata = $this->Wisata_model->get_by_id($id);
-		echo json_encode(["status" => "success", "data" => $wisata]);
+		$gambar = $this->Gambar_model->get_all($wisata->id);
+		if ($wisata != null) {
+			$wisata->listGambar = $gambar;
+			echo json_encode(["status" => "success", "data" => $wisata]);
+		} else {
+			echo json_encode(["status" => "empty", "data" => $wisata]);
+		}
 	}
 
 	public function tambah()

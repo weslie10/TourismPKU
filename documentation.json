@@ -1,0 +1,204 @@
+[
+    {
+        "path": "wisata/all",
+        "response": {
+            "status": "success",
+            "data": [
+                {
+                    "id": "1",
+                    "nama": "Kampung Agrowisata Rumbai",
+                    "gambar": "5",
+                    "alamat": "Palas, Kecamatan , Kelurahan Agrowisata",
+                    "jam_buka": "<p>Senin: 9.00 – 17.00<br>Selasa: 9.00 – 17.00<br>Rabu: 9.00 – 17.00<br>Kamis: 9.00 – 17.00<br>Jumat: Tutup<br>Sabtu: 9.00 – 17.00<br>Minggu: 9.00 – 17.00</p>",
+                    "no_telp": "0852-7135-6615",
+                    "kategori": "6",
+                    "rating": "3.8",
+                    "lat_coord": "0.6045569411233065",
+                    "long_coord": "101.36097908020021",
+                    "nama_kategori": "Wisata Pertanian",
+                    "background": "uploads/Kampung_Agrowisata_Rumbai-5.jpeg"
+                },
+                {
+                    "id": "2",
+                    "nama": "Taman Bunga Impian Okura",
+                    "gambar": "0",
+                    "alamat": "Tebing Tinggi Okura, Kecamatan Rumbai Timur, Kelurahan Tebing Tinggi Okura",
+                    "jam_buka": "<p>Senin: 9.00 – 17.00<br>Selasa: 9.00 – 17.00<br>Rabu: 9.00 – 17.00<br>Kamis: 9.00 – 17.00<br>Jumat: 9.00 – 17.00<br>Sabtu: 9.00 – 17.00<br>Minggu: 9.00 – 17.00</p>",
+                    "no_telp": "0852-7156-5933",
+                    "kategori": "3",
+                    "rating": "4.2",
+                    "lat_coord": "0.5784730648601811",
+                    "long_coord": "101.53109550476076",
+                    "nama_kategori": "Wisata Buatan",
+                    "background": null
+                }
+            ]
+        }
+    },
+    {
+        "path": "wisata/rekomendasi/{lat}/{long}",
+        "response": {
+            "status": "success",
+            "data": [
+                {
+                    "id": "25",
+                    "nama": "Masjid Raya An Nur",
+                    "gambar": "0",
+                    "alamat": "Jl. Hang Tuah, Kecamatan Pekanbaru Kota, Kelurahan Sumahilang",
+                    "jam_buka": "",
+                    "no_telp": "",
+                    "kategori": "4",
+                    "rating": "4.8",
+                    "lat_coord": "0.5265904292348689",
+                    "long_coord": "101.4507043361664",
+                    "nama_kategori": "Wisata Religi",
+                    "background": null,
+                    "jarak": 0.8465180077388533
+                },
+                {
+                    "id": "8",
+                    "nama": "Pasar Wisata Pasar Bawah",
+                    "gambar": "0",
+                    "alamat": "Jl. Jend. Ahmad Yani, Kecamatan , Kelurahan Kampung Dalam",
+                    "jam_buka": "<p>Senin: 08:30 – 12:00<br>Selasa: 08:30 –&nbsp;12:00<br>Rabu: 08:30 –&nbsp;12:00<br>Kamis: 8:30 –&nbsp;12:00<br>Jumat: 08:30 –&nbsp;17:30<br>Sabtu: 08:30 –&nbsp;17:30<br>Minggu: 08:30 –&nbsp;12:00</p>",
+                    "no_telp": "",
+                    "kategori": "7",
+                    "rating": "4.2",
+                    "lat_coord": "0.537896",
+                    "long_coord": "101.443828",
+                    "nama_kategori": "Wisata Belanja",
+                    "background": null,
+                    "jarak": 0.9551711269967269
+                }
+            ]
+        }
+    },
+    {
+        "path": "wisata/data_by_id/{id}",
+        "response": {
+            "status": "success",
+            "data": {
+                "id": "3",
+                "nama": "Wisata Dakwah Okura",
+                "gambar": "6",
+                "alamat": "Jl. Raja Panjang Okura, Kecamatan , Kelurahan Tebing Tinggi Okura",
+                "jam_buka": "<p>Senin: 08:00 –&nbsp;17:30<br>Selasa: 08:00 –&nbsp;17:30<br>Rabu: 08:00 –&nbsp;17:30<br>Kamis: 08:00 –&nbsp;17:30<br>Jumat: 08:00 –&nbsp;17:30<br>Sabtu: 08:00 –&nbsp;17:30<br>Minggu: 08:00 –&nbsp;17:30</p>",
+                "no_telp": "0812-7519-259",
+                "kategori": "4",
+                "rating": "4.3",
+                "lat_coord": "0.59368",
+                "long_coord": "101.502731",
+                "nama_kategori": "Wisata Religi",
+                "background": "uploads/Wisata_Dakwah_Okura-6.jpg",
+                "listGambar": [
+                    {
+                        "id": "6",
+                        "url": "uploads/Wisata_Dakwah_Okura-6.jpg",
+                        "wisata_id": "3",
+                        "nama_wisata": "Wisata Dakwah Okura",
+                        "background": "6"
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "path": "map/rute/{lat}/{long}/{id}",
+        "response": {
+            "src": "208",
+            "dest": 1241,
+            "path": [
+                {
+                    "id": "208",
+                    "lat": "0.53436339080697",
+                    "long": "101.45157938099"
+                },
+                {
+                    "id": "207",
+                    "lat": "0.53429902058989",
+                    "long": "101.45234128895"
+                },
+                {
+                    "id": "206",
+                    "lat": "0.53421855781761",
+                    "long": "101.45249152432"
+                },
+                {
+                    "id": "205",
+                    "lat": "0.53435266243751",
+                    "long": "101.4537363317"
+                },
+                {
+                    "id": "204",
+                    "lat": "0.5333227388816",
+                    "long": "101.45372023506"
+                },
+                {
+                    "id": "51",
+                    "lat": "0.53215075435107",
+                    "long": "101.45371449755"
+                },
+                {
+                    "id": "68",
+                    "lat": "0.53069890025729",
+                    "long": "101.45367455647"
+                },
+                {
+                    "id": "70",
+                    "lat": "0.52976084346195",
+                    "long": "101.45367788657"
+                },
+                {
+                    "id": "73",
+                    "lat": "0.52826488965726",
+                    "long": "101.45368861988"
+                },
+                {
+                    "id": "79",
+                    "lat": "0.5251442074758",
+                    "long": "101.45373687502"
+                },
+                {
+                    "id": "78",
+                    "lat": "0.52517101670037",
+                    "long": "101.45355977538"
+                },
+                {
+                    "id": "80",
+                    "lat": "0.52518078718977",
+                    "long": "101.45306642796"
+                },
+                {
+                    "id": "86",
+                    "lat": "0.52513789243048",
+                    "long": "101.45269612869"
+                },
+                {
+                    "id": "85",
+                    "lat": "0.52514325427541",
+                    "long": "101.45248682911"
+                },
+                {
+                    "id": "84",
+                    "lat": "0.52524512932817",
+                    "long": "101.45195553016"
+                },
+                {
+                    "id": "1237",
+                    "lat": "0.52524491988108",
+                    "long": "101.45174626191"
+                },
+                {
+                    "id": "1238",
+                    "lat": "0.52560416347494",
+                    "long": "101.45110762985"
+                },
+                {
+                    "id": 1241,
+                    "lat": "0.5259312359827",
+                    "long": "101.4504421645"
+                }
+            ]
+        }
+    }
+]

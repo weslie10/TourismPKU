@@ -13,8 +13,9 @@ class Wisata_model extends CI_Model
 
     function get_by_id($id)
     {
-        $this->db->select('wisata.*, k.nama as nama_kategori');
+        $this->db->select('wisata.*, k.nama as nama_kategori, g.url as background');
         $this->db->join('kategori k', 'k.id = wisata.kategori');
+        $this->db->join('gambar g', 'g.id = wisata.gambar', 'left');
         $this->db->where('wisata.id', $id);
         return $this->db->get($this->table)->row();
     }

@@ -128,6 +128,7 @@ class Map extends CI_Controller
 	{
 		// http://localhost/TourismPKU/map/rute/0.534155/101.451561/7
 
+		header('Content-Type: application/json');
 		$listTitikRute = $this->TitikRute_model->get_all();
 		$listRute = $this->Rute_model->get_all();
 
