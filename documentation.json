@@ -105,7 +105,7 @@
     {
         "path": "map/rute/{lat}/{long}/{id}",
         "response": {
-            "src": "208",
+            "src": 208,
             "dest": 1241,
             "path": [
                 {

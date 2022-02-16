@@ -90,7 +90,7 @@ class Map extends CI_Controller
 			if ($i != $src && $dist[$i] < PHP_INT_MAX) {
 				$result = new Result();
 				$result->dest = $i;
-				$result->src = $src;
+				$result->src = intval($src);
 				$this->paths = array();
 				// echo "The distance of vertex " . $i . " from vertex " . $src . " is " . $dist[$i] . ". Its path is [";
 				$this->printPath($parent, $i, $src);
@@ -106,21 +106,31 @@ class Map extends CI_Controller
 	private function getNearestPoint($lat, $long)
 	{
 		$radius = 0;
+		$fail = false;
 		while (true) {
 			$radius += 0.1;
 			$listTerdekat = $this->TitikRute_model->get_nearest_point($lat, $long, convertDist($radius));
+			if ($radius >= 5) {
+				$fail = true;
+				break;
+			}
 			if (count($listTerdekat) > 0) {
 				break;
 			}
 		}
 		$min = PHP_FLOAT_MAX;
-		foreach ($listTerdekat as $titik) {
-			$titik->jarak = getDist($titik->lat_coord, $titik->long_coord, $lat, $long);
-			if ($titik->jarak < $min) {
-				$titikTerdekat = $titik;
-				$min = $titik->jarak;
+		if (!$fail) {
+			foreach ($listTerdekat as $titik) {
+				$titik->jarak = getDist($titik->lat_coord, $titik->long_coord, $lat, $long);
+				if ($titik->jarak < $min) {
+					$titikTerdekat = $titik;
+					$min = $titik->jarak;
+				}
 			}
+		} else {
+			$titikTerdekat = "gagal";
 		}
+
 		return $titikTerdekat;
 	}
 
@@ -140,31 +150,40 @@ class Map extends CI_Controller
 
 		$tujuanTerdekat = $this->getNearestPoint($tujuan->lat_coord, $tujuan->long_coord);
 		$titikTerdekat = $this->getNearestPoint($latPosisi, $longPosisi);
-
-		$graph = new Graph();
-		$graph->v = count($listTitikRute);
-		$graph->e = count($listRute);
-		$graph->edge = new SplFixedArray($graph->e);
-		for ($i = 0; $i < $graph->e; $i++) {
-			$graph->edge[$i] = new Edge();
-			$graph->edge[$i]->src = $listRute[$i]->titik_awal;
-			$graph->edge[$i]->dest = $listRute[$i]->titik_akhir;
-			$graph->edge[$i]->weight = $listRute[$i]->jarak;
-		}
-		$hasil = $this->bellmanFord($graph, $titikTerdekat->id);
-		foreach ($hasil as $data) {
-			if ($data->dest == $tujuanTerdekat->id) {
-				$filter = $data;
-			}
-		}
-		for ($i = 0; $i < count($filter->path); $i++) {
-			$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
-			$filter->path[$i] = array(
-				"id" => $filter->path[$i],
-				"lat" => $titik->lat_coord,
-				"long" => $titik->long_coord
+		if ($tujuanTerdekat == "gagal" || $titikTerdekat == "gagal") {
+			echo json_encode(
+				array(
+					"src" => 0,
+					"dest" => 0,
+					"path" => [],
+				)
 			);
+		} else {
+			$graph = new Graph();
+			$graph->v = count($listTitikRute);
+			$graph->e = count($listRute);
+			$graph->edge = new SplFixedArray($graph->e);
+			for ($i = 0; $i < $graph->e; $i++) {
+				$graph->edge[$i] = new Edge();
+				$graph->edge[$i]->src = $listRute[$i]->titik_awal;
+				$graph->edge[$i]->dest = $listRute[$i]->titik_akhir;
+				$graph->edge[$i]->weight = $listRute[$i]->jarak;
+			}
+			$hasil = $this->bellmanFord($graph, $titikTerdekat->id);
+			foreach ($hasil as $data) {
+				if ($data->dest == $tujuanTerdekat->id) {
+					$filter = $data;
+				}
+			}
+			for ($i = 0; $i < count($filter->path); $i++) {
+				$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
+				$filter->path[$i] = array(
+					"id" => $filter->path[$i],
+					"lat" => $titik->lat_coord,
+					"long" => $titik->long_coord
+				);
+			}
+			echo json_encode($filter);
 		}
-		echo json_encode($filter);
 	}
 }
