@@ -37,6 +37,17 @@ class Wisata extends CI_Controller
 		}
 	}
 
+	public function search($query)
+	{
+		header('Content-Type: application/json');
+		$listWisata = $this->Wisata_model->search($query);
+		if (count($listWisata) > 0) {
+			echo json_encode(["status" => "success", "data" => $listWisata]);
+		} else {
+			echo json_encode(["status" => "empty", "data" => $listWisata]);
+		}
+	}
+
 	public function rekomendasi($lat, $long)
 	{
 		header('Content-Type: application/json');
