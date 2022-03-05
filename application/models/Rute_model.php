@@ -26,7 +26,7 @@ class Rute_model extends CI_Model
 
     function create_rute($dataRute)
     {
-        return $this->db->insert($this->table, $dataRute);
+        return $this->db->insert_batch($this->table, $dataRute);
     }
 
     function update_rute($dataRute, $where)

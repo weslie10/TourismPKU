@@ -22,7 +22,7 @@ class StatusRute_model extends CI_Model
 
     function create_status_rute($dataStatusRute)
     {
-        return $this->db->insert($this->table, $dataStatusRute);
+        return $this->db->insert_batch($this->table, $dataStatusRute);
     }
 
     function update_status_rute($dataStatusRute, $where)

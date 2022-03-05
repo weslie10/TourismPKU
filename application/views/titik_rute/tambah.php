@@ -35,7 +35,7 @@
                         <div class="col">
                             <div class="card" style="height: 30vh;">
                                 <div class="card-body">
-                                    <div class="row align-items-center">
+                                    <div class="row mb-3 align-items-center">
                                         <div class="col-2">
                                             <div class="kotak bg-danger"></div>
                                         </div>
@@ -43,7 +43,7 @@
                                             <span>Titik yang Sudah Ada</span>
                                         </div>
                                     </div>
-                                    <div class="row mb-3 align-items-center">
+                                    <div class="row align-items-center">
                                         <div class="col-2">
                                             <div class="kotak bg-primary"></div>
                                         </div>

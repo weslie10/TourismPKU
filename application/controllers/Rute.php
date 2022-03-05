@@ -65,13 +65,12 @@ class Rute extends CI_Controller
 		header('Content-Type: application/json');
 		$stream_clean = $this->security->xss_clean($this->input->raw_input_stream);
 		$listRute = json_decode($stream_clean);
-		foreach ($listRute as $rute) {
-			$data = [
+		$this->Rute_model->create_rute(array_map(function ($rute) {
+			return [
 				"titik_awal" => $rute->titik_awal->id,
 				"titik_akhir" => $rute->titik_akhir->id,
 			];
-			$this->Rute_model->create_rute($data);
-		}
+		}, $listRute));
 		echo json_encode(['status' => true, "message" => "Berhasil memasukkan rute"]);
 	}
 

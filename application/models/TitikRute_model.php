@@ -33,7 +33,7 @@ class TitikRute_model extends CI_Model
 
     function create_titik_rute($dataTitikRute)
     {
-        return $this->db->insert($this->table, $dataTitikRute);
+        return $this->db->insert_batch($this->table, $dataTitikRute);
     }
 
     function update_titik_rute($dataTitikRute, $where)

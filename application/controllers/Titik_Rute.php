@@ -43,13 +43,12 @@ class Titik_Rute extends CI_Controller
 		header('Content-Type: application/json');
 		$stream_clean = $this->security->xss_clean($this->input->raw_input_stream);
 		$listTitik = json_decode($stream_clean);
-		foreach ($listTitik as $titik) {
-			$data = [
+		$this->TitikRute_model->create_titik_rute(array_map(function ($titik) {
+			return [
 				"lat_coord" => $titik->lat,
 				"long_coord" => $titik->long,
 			];
-			$this->TitikRute_model->create_titik_rute($data);
-		}
+		}, $listTitik));
 		echo json_encode(['status' => true, "message" => "Berhasil memasukkan titik rute"]);
 	}
 

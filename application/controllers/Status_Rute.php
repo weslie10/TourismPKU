@@ -48,15 +48,14 @@ class Status_Rute extends CI_Controller
 		header('Content-Type: application/json');
 		$stream_clean = $this->security->xss_clean($this->input->raw_input_stream);
 		$listStatusRute = json_decode($stream_clean);
-		foreach ($listStatusRute as $statusRute) {
-			$data = [
+		$this->StatusRute_model->create_status_rute(array_map(function ($statusRute) {
+			return [
 				"hari" => $statusRute->hari,
 				"jam" => $statusRute->jam,
 				"rute_id" => $statusRute->rute_id,
 				"status" => $statusRute->status,
 			];
-			$this->StatusRute_model->create_status_rute($data);
-		}
+		}, $listStatusRute));
 		echo json_encode(['status' => true, "message" => "Berhasil memasukkan status rute"]);
 	}
 
