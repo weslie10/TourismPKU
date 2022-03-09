@@ -37,7 +37,7 @@
                                 <div class="card-body">
                                     <div class="row mb-3 align-items-center">
                                         <div class="col-2">
-                                            <div class="kotak bg-danger"></div>
+                                            <div class="kotak" style="background-color: green"></div>
                                         </div>
                                         <div class="col-10">
                                             <span>Titik yang Sudah Ada</span>

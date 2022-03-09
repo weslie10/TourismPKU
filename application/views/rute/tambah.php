@@ -60,7 +60,7 @@
                                             <div class="kotak bg-danger"></div>
                                         </div>
                                         <div class="col-10">
-                                            <span>Titik/Rute one-way yang sudah ada</span>
+                                            <span>Rute one-way yang sudah ada</span>
                                         </div>
                                     </div>
                                     <div class="row mb-3 align-items-center">

@@ -57,7 +57,13 @@ class Wisata extends CI_Controller
 		}
 		for ($i = 0; $i < count($listWisata); $i++) {
 			for ($j = 0; $j < count($listWisata) - 1; $j++) {
-				if ($listWisata[$j]->jarak > $listWisata[$j + 1]->jarak) {
+				if (intval($listWisata[$j]->jarak) == intval($listWisata[$j + 1]->jarak)) {
+					if ($listWisata[$j]->rating < $listWisata[$j + 1]->rating) {
+						$temp = $listWisata[$j];
+						$listWisata[$j] = $listWisata[$j + 1];
+						$listWisata[$j + 1] = $temp;
+					}
+				} else if ($listWisata[$j]->jarak > $listWisata[$j + 1]->jarak) {
 					$temp = $listWisata[$j];
 					$listWisata[$j] = $listWisata[$j + 1];
 					$listWisata[$j + 1] = $temp;

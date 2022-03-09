@@ -63,7 +63,6 @@ class Map extends CI_Controller
 		$E = $graph->e;
 		$lastId = $this->TitikRute_model->get_last_id()->id;
 
-		$dist = new SplFixedArray($lastId + 1);
 		$parent = new SplFixedArray($lastId + 1);
 
 		for ($i = 0; $i < $lastId + 1; $i++) {
@@ -71,8 +70,10 @@ class Map extends CI_Controller
 			$parent[$i] = -1;
 		}
 		$dist[$src] = 0;
+		$prevDist = $dist;
+		$repeat = false;
 
-		for ($i = 1; $i <= $V - 1; $i++) {
+		for ($i = 1; $i <= $V - 1 && !$repeat; $i++) {
 			for ($j = 0; $j < $E; $j++) {
 				$u = $graph->edge[$j]->src;
 				$v = $graph->edge[$j]->dest;
@@ -81,6 +82,18 @@ class Map extends CI_Controller
 					$dist[$v] = $dist[$u] + $weight;
 					$parent[$v] = $u;
 				}
+			}
+			$same = true;
+			for ($j = 0; $j < count($dist); $j++) {
+				if ($dist[$j] != $prevDist[$j]) {
+					$same = false;
+					break;
+				}
+			}
+			if (!$same) {
+				$prevDist = $dist;
+			} else {
+				$repeat = true;
 			}
 		}
 

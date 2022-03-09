@@ -54,7 +54,6 @@
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.js"></script>
 <script src="<?= base_url() ?>assets/js/tables.js"></script>
 
-<script src="<?= base_url() ?>assets/vendor/leaflet/leaflet.js"></script>
 <script src="<?= base_url() ?>assets/vendor/leaflet-arrowheads/src/leaflet-geometryutil.js"></script>
 <script src="<?= base_url() ?>assets/vendor/leaflet-arrowheads/src/leaflet-arrowheads.js"></script>
 <script src="<?= base_url() ?>assets/js/maps.js"></script>
