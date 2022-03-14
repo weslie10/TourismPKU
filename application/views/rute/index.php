@@ -8,9 +8,9 @@
                     <h1 class="h3 mb-4 text-dark">Tabel Rute</h1>
 
                     <a href="<?= site_url('rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
-                    <h6 class="text-dark mb-4">NB: untuk menambahkan dan menghapus rute, silahkan menekan tombol lihat peta</h6>
+                    <h6 class="text-dark">NB: untuk menambahkan dan menghapus rute, silahkan menekan tombol lihat peta</h6>
 
-                    <div class="table-responsive">
+                    <!-- <div class="table-responsive">
                         <table class="table table-bordered" id="table-rute" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
@@ -30,7 +30,7 @@
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

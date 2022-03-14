@@ -13,11 +13,9 @@ class Status_Rute extends CI_Controller
 
 	public function index()
 	{
-		$listStatusRute = $this->StatusRute_model->get_all();
 		$data = [
 			"title" => "Table Status Rute",
 			"active" => "status_rute",
-			"listStatusRute" => $listStatusRute,
 		];
 		loadViews($this, 'status_rute/index', $data);
 	}

@@ -70,10 +70,10 @@ class Map extends CI_Controller
 			$parent[$i] = -1;
 		}
 		$dist[$src] = 0;
-		$prevDist = $dist;
-		$repeat = false;
 
-		for ($i = 1; $i <= $V - 1 && !$repeat; $i++) {
+		//75
+		for ($i = 1; $i <= $V - 1; $i++) {
+			$repeat = false;
 			for ($j = 0; $j < $E; $j++) {
 				$u = $graph->edge[$j]->src;
 				$v = $graph->edge[$j]->dest;
@@ -81,19 +81,11 @@ class Map extends CI_Controller
 				if ($dist[$u] != PHP_INT_MAX && $dist[$u] + $weight < $dist[$v]) {
 					$dist[$v] = $dist[$u] + $weight;
 					$parent[$v] = $u;
+					$repeat = true;
 				}
 			}
-			$same = true;
-			for ($j = 0; $j < count($dist); $j++) {
-				if ($dist[$j] != $prevDist[$j]) {
-					$same = false;
-					break;
-				}
-			}
-			if (!$same) {
-				$prevDist = $dist;
-			} else {
-				$repeat = true;
+			if (!$repeat) {
+				break;
 			}
 		}
 
@@ -200,3 +192,5 @@ class Map extends CI_Controller
 		}
 	}
 }
+
+// 208, 8, 6, 48, 5, 15, 229, 230, 43, 42, 17, 18, 37, 38, 116, 117, 115, 226, 227, 1253, 923, 924

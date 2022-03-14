@@ -60,20 +60,6 @@ if (document.getElementById("map")) {
 		.setView([0.501947, 101.443751], 12)
 		.addLayer(L.mapbox.styleLayer("mapbox://styles/mapbox/streets-v11"));
 
-	// L.tileLayer(
-	// 	"https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoid2VzbGllMTAiLCJhIjoiY2t5MTBydnV2MDZ5YTJ3bXI1anRlNnEyZyJ9.LK5NkKV6Yq3lTLBVuE_bzg",
-	// 	{
-	// 		attribution:
-	// 			'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	// 		maxZoom: 18,
-	// 		id: "mapbox/streets-v11",
-	// 		tileSize: 512,
-	// 		zoomOffset: -1,
-	// 		accessToken:
-	// 			"pk.eyJ1Ijoid2VzbGllMTAiLCJhIjoiY2t5MTBydnV2MDZ5YTJ3bXI1anRlNnEyZyJ9.LK5NkKV6Yq3lTLBVuE_bzg",
-	// 	}
-	// ).addTo(map);
-
 	if (table == "titik_rute") {
 		const SideBar = document.getElementById("side-bar");
 		const loading = document.getElementById("loading");
@@ -826,10 +812,20 @@ if (document.getElementById("map")) {
 			objekWisata = L.layerGroup().addTo(map);
 			posisi = L.layerGroup().addTo(map);
 
-			L.marker([0.534155, 101.451561])
+			const initPosisi = [0.534155, 101.451561];
+
+			const posisiSekarang = L.marker(initPosisi, {
+				draggable: true,
+			})
 				.addTo(posisi)
 				.bindPopup("This is my position")
 				.openPopup();
+
+			document.getElementById("resetPosisi").addEventListener("click", () => {
+				posisiSekarang.setLatLng(initPosisi);
+				map.removeLayer(lines);
+				lines = L.layerGroup().addTo(map);
+			});
 
 			fetchData(`${BASE_URL}wisata/all`).then((data) => {
 				if (data.status == "success") {
@@ -849,17 +845,12 @@ if (document.getElementById("map")) {
 						marker.rating = wisata.rating;
 
 						marker.addEventListener("click", () => {
-							let gambar = "";
-							if (marker.gambar != 0) {
-								gambar = `<img src="${BASE_URL}${marker.background}" class="img-fluid">`;
-							} else {
-								gambar = `<p>Tidak ada gambar</p>`;
-							}
-
 							SideBar.innerHTML = `
                             <h6 class="text-dark">Id: ${marker.id}</h6>
                             <h6 class="text-dark">Nama: ${marker.nama}</h6>
-                            ${gambar}
+                            <a href="${BASE_URL}gambar/list/${
+								marker.id
+							}" class="text-underline">Cek Gambar</a>
                             <p>Alamat: ${marker.alamat}</p>
                             <p>Jam Buka: ${
 															marker.jam_buka ? marker.jam_buka : "tidak ada"
@@ -871,14 +862,23 @@ if (document.getElementById("map")) {
                             <br>
                             <button class="btn btn-primary rute" id="${
 															marker.id
-														}">Route</button>
-                            `;
+														}">Route</button>`;
 							const rute = document.getElementsByClassName("rute");
 							for (let i = 0; i < rute.length; i++) {
 								rute[i].addEventListener("click", () => {
+									let timer;
+									let time = 0;
+
+									timer = setInterval(() => {
+										time++;
+									}, 1000);
 									fetchData(
-										`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`
+										`${BASE_URL}map/rute/${posisiSekarang.getLatLng().lat}/${
+											posisiSekarang.getLatLng().lng
+										}/${rute[i].id}`
 									).then((data) => {
+										console.log(time);
+										clearInterval(timer);
 										console.log("ada");
 										map.removeLayer(lines);
 										lines = L.layerGroup().addTo(map);

@@ -13,11 +13,9 @@ class Rute extends CI_Controller
 
 	public function index()
 	{
-		$listRute = $this->Rute_model->get_all();
 		$data = [
 			"title" => "Table Rute",
 			"active" => "rute",
-			"listRute" => $listRute,
 		];
 		loadViews($this, 'rute/index', $data);
 	}

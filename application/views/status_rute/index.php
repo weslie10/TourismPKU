@@ -8,8 +8,9 @@
                     <h1 class="h3 mb-4 text-dark">Tabel Status Rute</h1>
 
                     <a href="<?= site_url('status_Rute/tambah') ?>" class="btn btn-primary mb-4">Lihat Peta</a>
+                    <h6 class="text-dark">NB: untuk menambahkan dan mengubah status rute, silahkan menekan tombol lihat peta</h6>
 
-                    <div class="table-responsive">
+                    <!-- <div class="table-responsive">
                         <table class="table table-bordered" id="table-status-rute" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
@@ -33,7 +34,7 @@
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

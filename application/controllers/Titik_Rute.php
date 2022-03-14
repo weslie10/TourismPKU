@@ -14,11 +14,9 @@ class Titik_Rute extends CI_Controller
 
 	public function index()
 	{
-		$listTitikRute = $this->TitikRute_model->get_all();
 		$data = [
 			"title" => "Table Titik Rute",
 			"active" => "titik_rute",
-			"listTitikRute" => $listTitikRute,
 		];
 		loadViews($this, 'titik_rute/index', $data);
 	}
