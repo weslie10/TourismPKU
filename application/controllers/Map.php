@@ -1,17 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Edge
-{
-	public $src, $dest, $weight;
-}
-
-class Graph
-{
-	// v-> Number of vertices, e-> Number of edges
-	public $v, $e, $edge;
-}
-
 class Result
 {
 	public $src, $dest, $path;
@@ -57,10 +46,10 @@ class Map extends CI_Controller
 		// }
 	}
 
-	private function bellmanFord($graph, $src)
+	private function bellmanFord($graph, $src, $dest)
 	{
-		$V = $graph->v;
-		$E = $graph->e;
+		// $V = $graph->v;
+		// $E = $graph->e;
 		$lastId = $this->TitikRute_model->get_last_id()->id;
 
 		$parent = new SplFixedArray($lastId + 1);
@@ -71,23 +60,49 @@ class Map extends CI_Controller
 		}
 		$dist[$src] = 0;
 
-		//75
-		for ($i = 1; $i <= $V - 1; $i++) {
-			$repeat = false;
-			for ($j = 0; $j < $E; $j++) {
-				$u = $graph->edge[$j]->src;
-				$v = $graph->edge[$j]->dest;
-				$weight = $graph->edge[$j]->weight;
+		$updatedVertices = [];
+		array_push($updatedVertices, $src);
+
+		// $count = 0;
+		while (count($updatedVertices) != 0) {
+			// $count++;
+			$u = array_shift($updatedVertices);
+
+			if ($u == $dest) {
+				break;
+			}
+
+			$listEdge = $graph[$u];
+
+			for ($j = 0; $j < count($listEdge); $j++) {
+				$v = $listEdge[$j]['dest'];
+				$weight = $listEdge[$j]['weight'];
 				if ($dist[$u] != PHP_INT_MAX && $dist[$u] + $weight < $dist[$v]) {
 					$dist[$v] = $dist[$u] + $weight;
 					$parent[$v] = $u;
-					$repeat = true;
+					array_push($updatedVertices, $listEdge[$j]['dest']);
 				}
 			}
-			if (!$repeat) {
-				break;
-			}
 		}
+		// echo $count;
+
+		//75
+		// for ($i = 1; $i <= $V - 1; $i++) {
+		// 	$repeat = false;
+		// 	for ($j = 0; $j < $E; $j++) {
+		// 		$u = $graph->edge[$j]->src;
+		// 		$v = $graph->edge[$j]->dest;
+		// 		$weight = $graph->edge[$j]->weight;
+		// 		if ($dist[$u] != PHP_INT_MAX && $dist[$u] + $weight < $dist[$v]) {
+		// 			$dist[$v] = $dist[$u] + $weight;
+		// 			$parent[$v] = $u;
+		// 			$repeat = true;
+		// 		}
+		// 	}
+		// 	if (!$repeat) {
+		// 		break;
+		// 	}
+		// }
 
 		$listPath = array();
 
@@ -110,21 +125,14 @@ class Map extends CI_Controller
 
 	private function getNearestPoint($lat, $long)
 	{
-		$radius = 0;
-		$fail = false;
-		while (true) {
-			$radius += 0.1;
-			$listTerdekat = $this->TitikRute_model->get_nearest_point($lat, $long, convertDist($radius));
-			if ($radius >= 5) {
-				$fail = true;
-				break;
-			}
-			if (count($listTerdekat) > 0) {
-				break;
-			}
+		$radius = 5;
+		$getData = false;
+		$listTerdekat = $this->TitikRute_model->get_nearest_point($lat, $long, convertDist($radius));
+		if (count($listTerdekat) > 0) {
+			$getData = true;
 		}
 		$min = PHP_FLOAT_MAX;
-		if (!$fail) {
+		if ($getData) {
 			foreach ($listTerdekat as $titik) {
 				$titik->jarak = getDist($titik->lat_coord, $titik->long_coord, $lat, $long);
 				if ($titik->jarak < $min) {
@@ -144,7 +152,7 @@ class Map extends CI_Controller
 		// http://localhost/TourismPKU/map/rute/0.534155/101.451561/7
 
 		header('Content-Type: application/json');
-		$listTitikRute = $this->TitikRute_model->get_all();
+		// $listTitikRute = $this->TitikRute_model->get_all();
 		$listRute = $this->Rute_model->get_all();
 
 		foreach ($listRute as $rute) {
@@ -164,17 +172,21 @@ class Map extends CI_Controller
 				)
 			);
 		} else {
-			$graph = new Graph();
-			$graph->v = count($listTitikRute);
-			$graph->e = count($listRute);
-			$graph->edge = new SplFixedArray($graph->e);
-			for ($i = 0; $i < $graph->e; $i++) {
-				$graph->edge[$i] = new Edge();
-				$graph->edge[$i]->src = $listRute[$i]->titik_awal;
-				$graph->edge[$i]->dest = $listRute[$i]->titik_akhir;
-				$graph->edge[$i]->weight = $listRute[$i]->jarak;
+			$graph = [];
+			for ($i = 0; $i < count($listRute); $i++) {
+				array_push($graph, []);
 			}
-			$hasil = $this->bellmanFord($graph, $titikTerdekat->id);
+
+			for ($i = 0; $i <  count($listRute); $i++) {
+				$edge = array(
+					"dest" => $listRute[$i]->titik_akhir,
+					"weight" => $listRute[$i]->jarak,
+				);
+				array_push($graph[$listRute[$i]->titik_awal], $edge);
+			}
+
+			$hasil = $this->bellmanFord($graph, $titikTerdekat->id, $tujuanTerdekat->id);
+			// json_encode($hasil);
 			foreach ($hasil as $data) {
 				if ($data->dest == $tujuanTerdekat->id) {
 					$filter = $data;
