@@ -569,6 +569,61 @@ if (document.getElementById("map")) {
 			}
 		});
 	} else if (table == "status_rute") {
+		const senapelanPolygon = [
+			[0.539276982046973, 101.4478611946106],
+			[0.5386440087247439, 101.44771099090576],
+			[0.5379681218843618, 101.44777536392212],
+			[0.5377213695271613, 101.44753932952881],
+			[0.5322069881682391, 101.44748568534851],
+			[0.5321533463019431, 101.44251823425293],
+			[0.5283125874648587, 101.44225001335144],
+			[0.5284842415419105, 101.43427848815918],
+			[0.5282804023248858, 101.43426775932312],
+			[0.5283340442247557, 101.43296957015991],
+			[0.5284198712635678, 101.43296957015991],
+			[0.5283555009845636, 101.4276373386383],
+			[0.5382470593196417, 101.42757296562195],
+			[0.5407038538707912, 101.4281952381134],
+			[0.5423667491821068, 101.42801284790039],
+			[0.545241947738481, 101.42971873283386],
+			[0.5445016915247004, 101.43184304237366],
+			[0.5425062178003798, 101.43375277519226],
+			[0.5412080866907861, 101.43740057945251],
+			[0.5410578896849567, 101.44050121307373],
+			[0.540886235959458, 101.44209980964659],
+			[0.5405107434179897, 101.44238948822021],
+			[0.5407574956621405, 101.44286155700684],
+			[0.5395130059807914, 101.44555449485779],
+			[0.5390945999100255, 101.44611239433289],
+			[0.539223340242558, 101.44642353057861],
+			[0.5391375133545041, 101.44667029380797],
+		];
+
+		const isPointInsidePolygon = (point, poly) => {
+			let inside = false;
+			let [x, y] = point;
+			for (let ii = 0; ii < poly.getLatLngs().length; ii++) {
+				let polyPoints = poly.getLatLngs()[ii];
+				for (
+					let i = 0, j = polyPoints.length - 1;
+					i < polyPoints.length;
+					j = i++
+				) {
+					let xi = polyPoints[i].lat,
+						yi = polyPoints[i].lng;
+					let xj = polyPoints[j].lat,
+						yj = polyPoints[j].lng;
+
+					let intersect =
+						yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+					if (intersect) inside = !inside;
+				}
+			}
+
+			return inside;
+		};
+
+		const SideBar = document.getElementById("side-bar");
 		const statusRuteModal = new bootstrap.Modal(
 			document.getElementById("statusRuteModal"),
 			{
@@ -590,116 +645,126 @@ if (document.getElementById("map")) {
 
 		let objekWisata = L.layerGroup().addTo(map);
 
+		const polygon = L.polygon(senapelanPolygon).addTo(map);
+
 		const reloadLine = () => {
-			lineGroup = L.layerGroup().addTo(map);
-			fetchData(`${BASE_URL}rute/all`).then((data) => {
-				data.forEach((titik) => {
-					const { id, lat_awal, id_kedua, long_awal, lat_akhir, long_akhir } =
-						titik;
-					if (id_kedua != null) {
-						const line = L.polyline(
-							[
-								[lat_awal, long_awal],
-								[lat_akhir, long_akhir],
-							],
-							{ color: "grey" }
-						).addTo(lineGroup);
-						line.id = id;
-						line.id_kedua = id_kedua;
-						line.addEventListener("click", () => {
-							statusRuteModal.show();
-							let action = "add";
-							modalTitle.innerHTML = `Status macet di rute ${line.id} dan ${line.id_kedua}`;
-							fetchData(
-								`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`
-							).then((listJam) => {
-								if (listJam.length > 0) {
-									for (let i = 0; i < listJam.length; i++) {
-										status[i].value = listJam[i].status;
-									}
-									action = "update";
-								} else {
-									for (let i = 0; i < status.length; i++) {
-										status[i].value = "sepi";
-									}
-									action = "add";
-								}
-							});
-							modalBtn.addEventListener("click", () => {
-								let data = [];
-								for (let i = 0; i < status.length; i++) {
-									data.push({
-										hari: hari[Math.floor(i / 15)],
-										jam: (i % 15) + 6,
-										rute_id: line.id,
-										status: status[i].value,
+			const lineGroup = L.layerGroup().addTo(map);
+
+			fetchData(`${BASE_URL}rute/all`).then((listData) => {
+				if (listData.status == "success") {
+					listData.data.forEach((titik) => {
+						const { id, lat_awal, id_kedua, long_awal, lat_akhir, long_akhir } =
+							titik;
+						if (
+							isPointInsidePolygon([lat_awal, long_awal], polygon) ||
+							isPointInsidePolygon([lat_akhir, long_akhir], polygon)
+						) {
+							if (id_kedua != null) {
+								const line = L.polyline(
+									[
+										[lat_awal, long_awal],
+										[lat_akhir, long_akhir],
+									],
+									{ color: "grey" }
+								).addTo(lineGroup);
+								line.id = id;
+								line.id_kedua = id_kedua;
+								line.addEventListener("click", () => {
+									statusRuteModal.show();
+									let action = "add";
+									modalTitle.innerHTML = `Status macet di rute ${line.id} dan ${line.id_kedua}`;
+									fetchData(
+										`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`
+									).then((listJam) => {
+										if (listJam.length > 0) {
+											for (let i = 0; i < listJam.length; i++) {
+												status[i].value = listJam[i].status;
+											}
+											action = "update";
+										} else {
+											for (let i = 0; i < status.length; i++) {
+												status[i].value = "sepi";
+											}
+											action = "add";
+										}
 									});
-								}
-								const data2 = data.map((el) => {
-									return {
-										hari: el.hari,
-										jam: el.jam,
-										rute_id: line.id_kedua,
-										status: el.status,
-									};
-								});
-								Promise.all([
-									postData(`${BASE_URL}status_Rute/${action}`, data),
-									postData(`${BASE_URL}status_Rute/${action}`, data2),
-								]).then((result) => {
-									alert(result[0].message);
-								});
-							});
-						});
-					} else {
-						const line = L.polyline(
-							[
-								[lat_awal, long_awal],
-								[lat_akhir, long_akhir],
-							],
-							{ color: "red" }
-						)
-							.arrowheads({ size: "5px" })
-							.addTo(lineGroup);
-						line.id = id;
-						line.addEventListener("click", () => {
-							statusRuteModal.show();
-							let action = "add";
-							modalTitle.innerHTML = `Status macet di rute ${line.id}`;
-							fetchData(
-								`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`
-							).then((listJam) => {
-								if (listJam.length > 0) {
-									for (let i = 0; i < listJam.length; i++) {
-										status[i].value = listJam[i].status;
-									}
-									action = "update";
-								} else {
-									for (let i = 0; i < status.length; i++) {
-										status[i].value = "sepi";
-									}
-									action = "add";
-								}
-							});
-							modalBtn.addEventListener("click", async () => {
-								let data = [];
-								for (let i = 0; i < status.length; i++) {
-									data.push({
-										hari: hari[Math.floor(i / 15)],
-										jam: (i % 15) + 6,
-										rute_id: line.id,
-										status: status[i].value,
+									modalBtn.addEventListener("click", () => {
+										let data = [];
+										for (let i = 0; i < status.length; i++) {
+											data.push({
+												hari: hari[Math.floor(i / 15)],
+												jam: (i % 15) + 6,
+												rute_id: line.id,
+												status: status[i].value,
+											});
+										}
+										const data2 = data.map((el) => {
+											return {
+												hari: el.hari,
+												jam: el.jam,
+												rute_id: line.id_kedua,
+												status: el.status,
+											};
+										});
+										Promise.all([
+											postData(`${BASE_URL}status_Rute/${action}`, data),
+											postData(`${BASE_URL}status_Rute/${action}`, data2),
+										]).then((result) => {
+											alert(result[0].message);
+										});
 									});
-								}
-								const result = await postData(
-									`${BASE_URL}status_Rute/${action}`,
-									data
-								);
-								alert(result.message);
-							});
-						});
-					}
-				});
+								});
+							} else {
+								const line = L.polyline(
+									[
+										[lat_awal, long_awal],
+										[lat_akhir, long_akhir],
+									],
+									{ color: "red" }
+								)
+									.arrowheads({ size: "5px" })
+									.addTo(lineGroup);
+								line.id = id;
+								line.addEventListener("click", () => {
+									statusRuteModal.show();
+									let action = "add";
+									modalTitle.innerHTML = `Status macet di rute ${line.id}`;
+									fetchData(
+										`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`
+									).then((listJam) => {
+										if (listJam.length > 0) {
+											for (let i = 0; i < listJam.length; i++) {
+												status[i].value = listJam[i].status;
+											}
+											action = "update";
+										} else {
+											for (let i = 0; i < status.length; i++) {
+												status[i].value = "sepi";
+											}
+											action = "add";
+										}
+									});
+									modalBtn.addEventListener("click", async () => {
+										let data = [];
+										for (let i = 0; i < status.length; i++) {
+											data.push({
+												hari: hari[Math.floor(i / 15)],
+												jam: (i % 15) + 6,
+												rute_id: line.id,
+												status: status[i].value,
+											});
+										}
+										const result = await postData(
+											`${BASE_URL}status_Rute/${action}`,
+											data
+										);
+										alert(result.message);
+									});
+								});
+							}
+						}
+					});
+				}
 			});
 		};
 
@@ -719,7 +784,7 @@ if (document.getElementById("map")) {
 						marker.alamat = wisata.alamat;
 						marker.jam_buka = wisata.jam_buka;
 						marker.no_telp = wisata.no_telp;
-						marker.kategori = wisata.kategori;
+						marker.kategori = wisata.nama_kategori;
 						marker.rating = wisata.rating;
 
 						marker.addEventListener("click", () => {
@@ -741,29 +806,7 @@ if (document.getElementById("map")) {
                             <p>No Telp: ${
 															marker.no_telp ? marker.no_telp : "tidak ada"
 														}</p>
-                            <p>Kategori: ${marker.kategori}</p>
-                            <br>
-                            <button class="btn btn-primary rute" id="${
-															marker.id
-														}">Route</button>
-                            `;
-							const rute = document.getElementsByClassName("rute");
-							for (let i = 0; i < rute.length; i++) {
-								rute[i].addEventListener("click", () => {
-									fetchData(
-										`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`
-									).then((data) => {
-										console.log(data);
-										map.removeLayer(lines);
-										lines = L.layerGroup().addTo(map);
-										const path = data.path.map((path) => [
-											parseFloat(path.lat),
-											parseFloat(path.long),
-										]);
-										L.polyline(path, { color: "red" }).addTo(lines);
-									});
-								});
-							}
+                            <p>Kategori: ${marker.kategori}</p>`;
 						});
 					});
 				}
@@ -820,6 +863,7 @@ if (document.getElementById("map")) {
 				.addTo(posisi)
 				.bindPopup("This is my position")
 				.openPopup();
+			posisiSekarang._icon.style.filter = "hue-rotate(150deg)";
 
 			document.getElementById("resetPosisi").addEventListener("click", () => {
 				posisiSekarang.setLatLng(initPosisi);

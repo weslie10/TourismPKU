@@ -3,6 +3,7 @@
         <div class="col-6">
             <div class="card shadow">
                 <div class="card-body">
+                    <h5>Max File: 2MB, Format: .jpg, .jpeg, .png</h5>
                     <div class="row mx-0">
                         <form action="<?= site_url("gambar/add/" . $wisata_id) ?>" enctype="multipart/form-data" id="imageUpload" class="dropzone" method="POST" style="width: 100%;">
                     </div>
@@ -21,11 +22,19 @@
         dictRemoveFile: "Delete",
         paramName: "files[]",
         autoProcessQueue: false,
-        maxFilesize: 5,
+        maxFilesize: 2,
         parallelUploads: 3,
         uploadMultiple: true,
         acceptedFiles: ".jpeg,.jpg,.png"
     });
+    myDropzone.on("complete", function(file) {
+        setTimeout(() => {
+            myDropzone.removeFile(file);
+        }, 2000);
+    });
+    myDropzone.on("maxfilesexceeded", (file) => {
+        myDropzone.removeFile(file);
+    })
 
     const tambah = document.getElementById("tambah");
     tambah.addEventListener('click', (e) => {

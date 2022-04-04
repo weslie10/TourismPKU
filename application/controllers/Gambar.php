@@ -92,7 +92,6 @@ class Gambar extends CI_Controller
 	public function do_upload($type, $id)
 	{
 		$gambar = $this->Gambar_model->get_last_id()->id;
-		var_dump($gambar);
 		if ($gambar == NULL) {
 			$gambar = 0;
 		}
@@ -102,11 +101,12 @@ class Gambar extends CI_Controller
 		$ext = $ext[count($ext) - 1];
 		$new_name = $wisata->nama . "-" . $gambar . "." . $ext;
 		$new_name = str_replace(" ", "_", $new_name);
+		$new_name = str_replace("'", "", $new_name);
 		// $new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
 
 		$config['upload_path']          = 'uploads/';
 		$config['allowed_types']        = 'jpg|jpeg|png';
-		$config['max_size']             = 5120;
+		$config['max_size']             = 2048;
 		$config['file_name']            = $new_name;
 
 		$this->load->library('upload', $config);
@@ -114,8 +114,10 @@ class Gambar extends CI_Controller
 
 		if (!$this->upload->do_upload($type)) {
 			$error = array('error' => $this->upload->display_errors());
+			var_dump($error);
 			return array("status" => false, "error" => $error);
 		} else {
+			echo "berhasil";
 			return array("status" => true, "pic" => $config['upload_path'] . $new_name);
 		}
 	}

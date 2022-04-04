@@ -32,22 +32,17 @@ class Rute extends CI_Controller
 	public function all()
 	{
 		header('Content-Type: application/json');
-		$listDuplicate = [];
 		$listRute = $this->Rute_model->get_all();
-		$flag = true;
-		foreach ($listRute as $rute) {
-			if ($rute->id_kedua != null) {
-				if ($flag) {
-					array_push($listDuplicate, $rute->id_kedua);
-					$flag = false;
-				} else 	$flag = true;
-			}
-		}
-		foreach ($listDuplicate as $duplicate) {
-			for ($i = 0; $i < count($listRute); $i++) {
-				if ($listRute[$i]->id_kedua == $duplicate) {
-					array_splice($listRute, $i, 1);
-					break;
+
+		for ($i = 0; $i < count($listRute) - 1; $i++) {
+			$check = $listRute[$i]->titik_awal == $listRute[$i + 1]->titik_akhir && $listRute[$i]->titik_akhir == $listRute[$i + 1]->titik_awal;
+			if ($check) {
+				$listRute[$i]->id_kedua = $listRute[$i + 1]->id;
+				array_splice($listRute, $i + 1, 1);
+				$i--;
+			} else {
+				if (!isset($listRute[$i]->id_kedua)) {
+					$listRute[$i]->id_kedua = null;
 				}
 			}
 		}

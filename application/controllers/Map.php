@@ -15,6 +15,7 @@ class Map extends CI_Controller
 		$this->load->library('session');
 		$this->load->model('Rute_model');
 		$this->load->model('TitikRute_model');
+		$this->load->model('StatusRute_model');
 		$this->load->model('Wisata_model');
 	}
 
@@ -60,19 +61,19 @@ class Map extends CI_Controller
 		}
 		$dist[$src] = 0;
 
-		$updatedVertices = [];
-		array_push($updatedVertices, $src);
+		$updatedVertices = new Ds\Vector();
+		$updatedVertices->push($src);
 
 		// $count = 0;
 		while (count($updatedVertices) != 0) {
 			// $count++;
-			$u = array_shift($updatedVertices);
+			$u = $updatedVertices->shift();
 
 			if ($u == $dest) {
 				break;
 			}
 
-			$listEdge = $graph[$u];
+			$listEdge = $graph[intval($u)];
 
 			for ($j = 0; $j < count($listEdge); $j++) {
 				$v = $listEdge[$j]['dest'];
@@ -80,7 +81,7 @@ class Map extends CI_Controller
 				if ($dist[$u] != PHP_INT_MAX && $dist[$u] + $weight < $dist[$v]) {
 					$dist[$v] = $dist[$u] + $weight;
 					$parent[$v] = $u;
-					array_push($updatedVertices, $listEdge[$j]['dest']);
+					$updatedVertices->push($listEdge[$j]['dest']);
 				}
 			}
 		}
@@ -104,7 +105,7 @@ class Map extends CI_Controller
 		// 	}
 		// }
 
-		$listPath = array();
+		$listPath = new Ds\Vector();
 
 		for ($i = 0; $i < $lastId + 1; $i++) {
 			if ($i != $src && $dist[$i] < PHP_INT_MAX) {
@@ -116,7 +117,7 @@ class Map extends CI_Controller
 				$this->printPath($parent, $i, $src);
 				$result->path = $this->paths;
 				// echo "]<br>";
-				array_push($listPath, $result);
+				$listPath->push($result);
 			}
 		}
 
@@ -152,6 +153,7 @@ class Map extends CI_Controller
 		// http://localhost/TourismPKU/map/rute/0.534155/101.451561/7
 
 		header('Content-Type: application/json');
+
 		// $listTitikRute = $this->TitikRute_model->get_all();
 		$listRute = $this->Rute_model->get_all();
 
@@ -163,6 +165,8 @@ class Map extends CI_Controller
 
 		$tujuanTerdekat = $this->getNearestPoint($tujuan->lat_coord, $tujuan->long_coord);
 		$titikTerdekat = $this->getNearestPoint($latPosisi, $longPosisi);
+		// echo json_encode($tujuanTerdekat);
+		// echo json_encode($titikTerdekat);
 		if ($tujuanTerdekat == "gagal" || $titikTerdekat == "gagal") {
 			echo json_encode(
 				array(
@@ -172,32 +176,62 @@ class Map extends CI_Controller
 				)
 			);
 		} else {
-			$graph = [];
+			$vector = new Ds\Vector();
 			for ($i = 0; $i < count($listRute); $i++) {
-				array_push($graph, []);
+				$vector->push(new Ds\Vector());
+				// array_push($graph, []);
 			}
 
 			for ($i = 0; $i <  count($listRute); $i++) {
 				$edge = array(
-					"dest" => $listRute[$i]->titik_akhir,
-					"weight" => $listRute[$i]->jarak,
+					"dest" => intval($listRute[$i]->titik_akhir),
+					"weight" => intval($listRute[$i]->jarak),
 				);
-				array_push($graph[$listRute[$i]->titik_awal], $edge);
+				$vector[intval($listRute[$i]->titik_awal)]->push($edge);
 			}
 
-			$hasil = $this->bellmanFord($graph, $titikTerdekat->id, $tujuanTerdekat->id);
-			// json_encode($hasil);
-			foreach ($hasil as $data) {
-				if ($data->dest == $tujuanTerdekat->id) {
-					$filter = $data;
-				}
-			}
+			$hasil = $this->bellmanFord($vector, $titikTerdekat->id, $tujuanTerdekat->id);
+
+			// 5925 208
+			$filter = $hasil->filter(function ($data) use ($tujuanTerdekat) {
+				return $data->dest == $tujuanTerdekat->id;
+			})[0];
+
 			for ($i = 0; $i < count($filter->path); $i++) {
 				$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
+
+				date_default_timezone_set("Asia/Jakarta");
+				$date = date("H:i:s");
+				$dateArr = explode(":", $date);
+				$time = intval($dateArr[0]);
+				setlocale(LC_ALL, 'IND');
+				$day = strtolower(strftime("%A"));
+
+				$waktu = $this->StatusRute_model->get_data_by_time(
+					intval($filter->path[$i]),
+					$time,
+					$time + 1,
+					$day
+				);
+				$status = "sepi";
+				if (count($waktu) == 2) {
+					$statusToNumber = ["sepi" => 0, "ramai" => 1, "macet" => 2];
+					$numberToStatus = ["sepi", "ramai", "macet"];
+					$minute = intval($dateArr[1]);
+					if ($minute >= 20 && $minute <= 40) {
+						$status = $numberToStatus[floor($statusToNumber[$waktu[0]->status] + $statusToNumber[$waktu[1]->status] / 2)];
+					} else if ($minute < 20) {
+						$status = $waktu[0]->status;
+					} else {
+						$status = $waktu[1]->status;
+					}
+				}
+
 				$filter->path[$i] = array(
 					"id" => $filter->path[$i],
 					"lat" => $titik->lat_coord,
-					"long" => $titik->long_coord
+					"long" => $titik->long_coord,
+					"status" => $status,
 				);
 			}
 			echo json_encode($filter);

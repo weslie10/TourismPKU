@@ -5,11 +5,18 @@ class Rute_model extends CI_Model
 
     function get_all()
     {
-        $this->db->select("rute.*, tr1.lat_coord as lat_awal, r.id as id_kedua, tr1.long_coord as long_awal, tr2.lat_coord as lat_akhir, tr2.long_coord as long_akhir");
-        $this->db->join('rute as r', 'rute.titik_awal = r.titik_akhir and rute.titik_akhir = r.titik_awal', 'left');
+        $this->db->select("rute.*, tr1.lat_coord as lat_awal, tr1.long_coord as long_awal, tr2.lat_coord as lat_akhir, tr2.long_coord as long_akhir");
+        // $this->db->join('rute as r', 'rute.titik_awal = r.titik_akhir and rute.titik_akhir = r.titik_awal', 'left');
         $this->db->join('titik_rute as tr1', 'tr1.id = rute.titik_awal');
         $this->db->join('titik_rute as tr2', 'tr2.id = rute.titik_akhir');
+        $this->db->group_by('rute.id');
         return $this->db->get($this->table)->result();
+
+        // SELECT `rute`.*, `tr1`.`lat_coord` as `lat_awal`, `r`.`id` as `id_kedua`, `tr1`.`long_coord` as `long_awal`, `tr2`.`lat_coord` as `lat_akhir`, `tr2`.`long_coord` as `long_akhir`
+        // FROM `rute`
+        // LEFT JOIN `rute` as `r` ON `rute`.`titik_awal` = `r`.`titik_akhir` and `rute`.`titik_akhir` = `r`.`titik_awal`
+        // JOIN `titik_rute` as `tr1` ON `tr1`.`id` = `rute`.`titik_awal`
+        // JOIN `titik_rute` as `tr2` ON `tr2`.`id` = `rute`.`titik_akhir`
     }
 
     function get_last_id()
