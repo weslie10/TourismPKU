@@ -921,9 +921,7 @@ if (document.getElementById("map")) {
 											posisiSekarang.getLatLng().lng
 										}/${rute[i].id}`
 									).then((data) => {
-										console.log(time);
 										clearInterval(timer);
-										console.log("ada");
 										map.removeLayer(lines);
 										lines = L.layerGroup().addTo(map);
 										const path = data.path.map((path) => [

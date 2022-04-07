@@ -61,13 +61,13 @@ class Map extends CI_Controller
 		}
 		$dist[$src] = 0;
 
-		$updatedVertices = new Ds\Vector();
-		$updatedVertices->push($src);
+		$updatedVertices = [];
+		array_push($updatedVertices, $src);
 
 		// $count = 0;
 		while (count($updatedVertices) != 0) {
 			// $count++;
-			$u = $updatedVertices->shift();
+			$u = array_shift($updatedVertices);
 
 			if ($u == $dest) {
 				break;
@@ -81,7 +81,7 @@ class Map extends CI_Controller
 				if ($dist[$u] != PHP_INT_MAX && $dist[$u] + $weight < $dist[$v]) {
 					$dist[$v] = $dist[$u] + $weight;
 					$parent[$v] = $u;
-					$updatedVertices->push($listEdge[$j]['dest']);
+					array_push($updatedVertices, $listEdge[$j]['dest']);
 				}
 			}
 		}
@@ -105,7 +105,7 @@ class Map extends CI_Controller
 		// 	}
 		// }
 
-		$listPath = new Ds\Vector();
+		$listPath = [];
 
 		for ($i = 0; $i < $lastId + 1; $i++) {
 			if ($i != $src && $dist[$i] < PHP_INT_MAX) {
@@ -117,7 +117,7 @@ class Map extends CI_Controller
 				$this->printPath($parent, $i, $src);
 				$result->path = $this->paths;
 				// echo "]<br>";
-				$listPath->push($result);
+				array_push($listPath, $result);
 			}
 		}
 
@@ -176,10 +176,9 @@ class Map extends CI_Controller
 				)
 			);
 		} else {
-			$vector = new Ds\Vector();
+			$graph = [];
 			for ($i = 0; $i < count($listRute); $i++) {
-				$vector->push(new Ds\Vector());
-				// array_push($graph, []);
+				array_push($graph, []);
 			}
 
 			for ($i = 0; $i <  count($listRute); $i++) {
@@ -187,15 +186,16 @@ class Map extends CI_Controller
 					"dest" => intval($listRute[$i]->titik_akhir),
 					"weight" => intval($listRute[$i]->jarak),
 				);
-				$vector[intval($listRute[$i]->titik_awal)]->push($edge);
+				array_push($graph[$listRute[$i]->titik_awal], $edge);
 			}
 
-			$hasil = $this->bellmanFord($vector, $titikTerdekat->id, $tujuanTerdekat->id);
-
-			// 5925 208
-			$filter = $hasil->filter(function ($data) use ($tujuanTerdekat) {
-				return $data->dest == $tujuanTerdekat->id;
-			})[0];
+			$hasil = $this->bellmanFord($graph, $titikTerdekat->id, $tujuanTerdekat->id);
+			// json_encode($hasil);
+			foreach ($hasil as $data) {
+				if ($data->dest == $tujuanTerdekat->id) {
+					$filter = $data;
+				}
+			}
 
 			for ($i = 0; $i < count($filter->path); $i++) {
 				$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
