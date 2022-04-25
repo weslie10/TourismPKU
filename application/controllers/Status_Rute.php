@@ -53,7 +53,7 @@ class Status_Rute extends CI_Controller
 				"rute_id" => $statusRute->rute_id,
 				"status" => $statusRute->status,
 			];
-		}, $listStatusRute));
+		}, $listStatusRute), $listStatusRute[0]->rute_id);
 		echo json_encode(['status' => true, "message" => "Berhasil memasukkan status rute"]);
 	}
 

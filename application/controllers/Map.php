@@ -38,19 +38,10 @@ class Map extends CI_Controller
 			$vertex = $parent[$vertex];
 		}
 		$this->paths = array_reverse($this->paths);
-
-		// for ($i = 0; $i < count($this->paths); $i++) {
-		// 	if ($i != 0) {
-		// 		echo ",";
-		// 	}
-		// 	echo $this->paths[$i];
-		// }
 	}
 
 	private function bellmanFord($graph, $src, $dest)
 	{
-		// $V = $graph->v;
-		// $E = $graph->e;
 		$lastId = $this->TitikRute_model->get_last_id()->id;
 
 		$parent = new SplFixedArray($lastId + 1);
@@ -64,9 +55,7 @@ class Map extends CI_Controller
 		$updatedVertices = [];
 		array_push($updatedVertices, $src);
 
-		// $count = 0;
 		while (count($updatedVertices) != 0) {
-			// $count++;
 			$u = array_shift($updatedVertices);
 
 			if ($u == $dest) {
@@ -85,25 +74,7 @@ class Map extends CI_Controller
 				}
 			}
 		}
-		// echo $count;
-
-		//75
-		// for ($i = 1; $i <= $V - 1; $i++) {
-		// 	$repeat = false;
-		// 	for ($j = 0; $j < $E; $j++) {
-		// 		$u = $graph->edge[$j]->src;
-		// 		$v = $graph->edge[$j]->dest;
-		// 		$weight = $graph->edge[$j]->weight;
-		// 		if ($dist[$u] != PHP_INT_MAX && $dist[$u] + $weight < $dist[$v]) {
-		// 			$dist[$v] = $dist[$u] + $weight;
-		// 			$parent[$v] = $u;
-		// 			$repeat = true;
-		// 		}
-		// 	}
-		// 	if (!$repeat) {
-		// 		break;
-		// 	}
-		// }
+		// echo json_encode($dist);
 
 		$listPath = [];
 
@@ -148,7 +119,7 @@ class Map extends CI_Controller
 		return $titikTerdekat;
 	}
 
-	public function rute($latPosisi, $longPosisi, $id)
+	public function rute($latPosisi, $longPosisi, $id, $day = null, $time = null)
 	{
 		// http://localhost/TourismPKU/map/rute/0.534155/101.451561/7
 
@@ -156,6 +127,7 @@ class Map extends CI_Controller
 
 		// $listTitikRute = $this->TitikRute_model->get_all();
 		$listRute = $this->Rute_model->get_all();
+		// echo count($listRute) . "<br>";
 
 		foreach ($listRute as $rute) {
 			$rute->jarak = getDist($rute->lat_awal, $rute->long_awal, $rute->lat_akhir, $rute->long_akhir);
@@ -176,65 +148,117 @@ class Map extends CI_Controller
 				)
 			);
 		} else {
-			$graph = [];
-			for ($i = 0; $i < count($listRute); $i++) {
-				array_push($graph, []);
-			}
+			$count = 0;
+			$listTraffic = ["macet", "ramai", ""];
 
-			for ($i = 0; $i <  count($listRute); $i++) {
-				$edge = array(
-					"dest" => intval($listRute[$i]->titik_akhir),
-					"weight" => intval($listRute[$i]->jarak),
-				);
-				array_push($graph[$listRute[$i]->titik_awal], $edge);
-			}
-
-			$hasil = $this->bellmanFord($graph, $titikTerdekat->id, $tujuanTerdekat->id);
-			// json_encode($hasil);
-			foreach ($hasil as $data) {
-				if ($data->dest == $tujuanTerdekat->id) {
-					$filter = $data;
+			$allPath = [];
+			while (true) {
+				$this->paths = array();
+				$graph = [];
+				for ($i = 0; $i < count($listRute); $i++) {
+					array_push($graph, []);
 				}
-			}
 
-			for ($i = 0; $i < count($filter->path); $i++) {
-				$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
+				for ($i = 0; $i <  count($listRute); $i++) {
+					$edge = array(
+						"dest" => intval($listRute[$i]->titik_akhir),
+						"weight" => intval($listRute[$i]->jarak),
+					);
+					array_push($graph[$listRute[$i]->titik_awal], $edge);
+				}
 
-				date_default_timezone_set("Asia/Jakarta");
-				$date = date("H:i:s");
-				$dateArr = explode(":", $date);
-				$time = intval($dateArr[0]);
-				setlocale(LC_ALL, 'IND');
-				$day = strtolower(strftime("%A"));
-
-				$waktu = $this->StatusRute_model->get_data_by_time(
-					intval($filter->path[$i]),
-					$time,
-					$time + 1,
-					$day
-				);
-				$status = "sepi";
-				if (count($waktu) == 2) {
-					$statusToNumber = ["sepi" => 0, "ramai" => 1, "macet" => 2];
-					$numberToStatus = ["sepi", "ramai", "macet"];
-					$minute = intval($dateArr[1]);
-					if ($minute >= 20 && $minute <= 40) {
-						$status = $numberToStatus[floor($statusToNumber[$waktu[0]->status] + $statusToNumber[$waktu[1]->status] / 2)];
-					} else if ($minute < 20) {
-						$status = $waktu[0]->status;
-					} else {
-						$status = $waktu[1]->status;
+				$hasil = [];
+				$hasil = $this->bellmanFord($graph, $titikTerdekat->id, $tujuanTerdekat->id);
+				// echo json_encode($hasil) . "<hr>";
+				foreach ($hasil as $data) {
+					if ($data->dest == $tujuanTerdekat->id) {
+						$filter = $data;
 					}
 				}
+				// echo json_encode($filter);
 
-				$filter->path[$i] = array(
-					"id" => $filter->path[$i],
-					"lat" => $titik->lat_coord,
-					"long" => $titik->long_coord,
-					"status" => $status,
-				);
+				for ($i = 0; $i < count($filter->path); $i++) {
+					$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
+
+					date_default_timezone_set("Asia/Jakarta");
+					if ($day == null) {
+						setlocale(LC_ALL, 'IND');
+						$day = strtolower(strftime("%A"));
+					}
+					if ($time == null) {
+						$date = date("H:i:s");
+						$dateArr = explode(":", $date);
+						$time = intval($dateArr[0]);
+					}
+
+					$waktu = $this->StatusRute_model->get_data_by_time(
+						intval($filter->path[$i]),
+						$time,
+						$time + 1,
+						$day
+					);
+					$status = "sepi";
+					// echo "<hr>" . json_encode($waktu);
+					if (count($waktu) == 2) {
+						$statusToNumber = ["sepi" => 0, "ramai" => 1, "macet" => 2];
+						$numberToStatus = ["sepi", "ramai", "macet"];
+						$minute = intval($dateArr[1]);
+						if ($minute >= 20 && $minute <= 40) {
+							$calc = floor($statusToNumber[$waktu[0]->status] + $statusToNumber[$waktu[1]->status] / 2);
+							if ($calc > 2) $calc = 2;
+							$status = $numberToStatus[$calc];
+						} else if ($minute < 20) {
+							$status = $waktu[0]->status;
+						} else {
+							$status = $waktu[1]->status;
+						}
+					}
+
+					$filter->path[$i] = array(
+						"id" => $filter->path[$i],
+						"lat" => $titik->lat_coord,
+						"long" => $titik->long_coord,
+						"status" => $status,
+					);
+				}
+				$check = false;
+				for ($i = 0; $i < count($filter->path); $i++) {
+					if ($filter->path[$i]["status"] == $listTraffic[$count]) {
+						$idPath = $filter->path[$i]["id"];
+						for ($j = 0; $j < count($listRute); $j++) {
+							// echo $listRute[$j]->id . " " . $idPath . "<br>";
+							if ($listRute[$j]->id == $idPath || $listRute[$j]->titik_awal == $idPath || $listRute[$j]->titik_akhir == $idPath) {
+								array_splice($listRute, $j, 1);
+							}
+						}
+						$check = true;
+					}
+				}
+				if (!$check && $count == 0) {
+					for ($i = 0; $i < count($filter->path); $i++) {
+						if ($filter->path[$i]["status"] == $listTraffic[$count + 1]) {
+							$idPath = $filter->path[$i]["id"];
+							for ($j = 0; $j < count($listRute); $j++) {
+								// echo $listRute[$j]->id . " " . $idPath . "<br>";
+								if ($listRute[$j]->id == $idPath || $listRute[$j]->titik_awal == $idPath || $listRute[$j]->titik_akhir == $idPath) {
+									array_splice($listRute, $j, 1);
+								}
+							}
+							$check = true;
+						}
+					}
+				}
+				array_push($allPath, $filter);
+				if (!$check) {
+					break;
+				}
+				$count++;
+				if ($count == 3) {
+					break;
+				}
 			}
-			echo json_encode($filter);
+
+			echo json_encode($allPath);
 		}
 	}
 }

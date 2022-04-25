@@ -645,7 +645,12 @@ if (document.getElementById("map")) {
 
 		let objekWisata = L.layerGroup().addTo(map);
 
-		const polygon = L.polygon(senapelanPolygon).addTo(map);
+		const polygon = L.polygon(senapelanPolygon, {
+			noClip: true,
+			interactive: false,
+		})
+			.bringToBack()
+			.addTo(map);
 
 		const reloadLine = () => {
 			const lineGroup = L.layerGroup().addTo(map);
@@ -669,26 +674,31 @@ if (document.getElementById("map")) {
 								).addTo(lineGroup);
 								line.id = id;
 								line.id_kedua = id_kedua;
-								line.addEventListener("click", () => {
+								line.addEventListener("click", async () => {
+									//SELECT rute_id, count(*) FROM `status_rute` group by rute_id
+
 									statusRuteModal.show();
 									let action = "add";
-									modalTitle.innerHTML = `Status macet di rute ${line.id} dan ${line.id_kedua}`;
-									fetchData(
+									let aksi = "Tambah";
+									const listJam = await fetchData(
 										`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`
-									).then((listJam) => {
-										if (listJam.length > 0) {
-											for (let i = 0; i < listJam.length; i++) {
-												status[i].value = listJam[i].status;
-											}
-											action = "update";
-										} else {
-											for (let i = 0; i < status.length; i++) {
-												status[i].value = "sepi";
-											}
-											action = "add";
+									);
+									if (listJam.length > 0) {
+										for (let i = 0; i < listJam.length; i++) {
+											status[i].value = listJam[i].status;
 										}
-									});
-									modalBtn.addEventListener("click", () => {
+										action = "update";
+										aksi = "Ubah";
+									} else {
+										for (let i = 0; i < status.length; i++) {
+											status[i].value = "sepi";
+										}
+										action = "add";
+										aksi = "Tambah";
+									}
+									let flag = false;
+									modalTitle.innerHTML = `${aksi} status macet di rute ${line.id} dan ${line.id_kedua}`;
+									modalBtn.addEventListener("click", async () => {
 										let data = [];
 										for (let i = 0; i < status.length; i++) {
 											data.push({
@@ -706,12 +716,15 @@ if (document.getElementById("map")) {
 												status: el.status,
 											};
 										});
-										Promise.all([
-											postData(`${BASE_URL}status_Rute/${action}`, data),
-											postData(`${BASE_URL}status_Rute/${action}`, data2),
-										]).then((result) => {
-											alert(result[0].message);
-										});
+										if (!flag) {
+											await Promise.all([
+												postData(`${BASE_URL}status_Rute/${action}`, data),
+												postData(`${BASE_URL}status_Rute/${action}`, data2),
+											]);
+											flag = true;
+										}
+
+										statusRuteModal.hide();
 									});
 								});
 							} else {
@@ -725,25 +738,28 @@ if (document.getElementById("map")) {
 									.arrowheads({ size: "5px" })
 									.addTo(lineGroup);
 								line.id = id;
-								line.addEventListener("click", () => {
+								line.addEventListener("click", async () => {
 									statusRuteModal.show();
 									let action = "add";
-									modalTitle.innerHTML = `Status macet di rute ${line.id}`;
-									fetchData(
+									let aksi = "Tambah";
+									const listJam = await fetchData(
 										`${BASE_URL}status_Rute/get_by_rute_id/${line.id}`
-									).then((listJam) => {
-										if (listJam.length > 0) {
-											for (let i = 0; i < listJam.length; i++) {
-												status[i].value = listJam[i].status;
-											}
-											action = "update";
-										} else {
-											for (let i = 0; i < status.length; i++) {
-												status[i].value = "sepi";
-											}
-											action = "add";
+									);
+									if (listJam.length > 0) {
+										for (let i = 0; i < listJam.length; i++) {
+											status[i].value = listJam[i].status;
 										}
-									});
+										action = "update";
+										aksi = "Ubah";
+									} else {
+										for (let i = 0; i < status.length; i++) {
+											status[i].value = "sepi";
+										}
+										action = "add";
+										aksi = "Tambah";
+									}
+									let flag = false;
+									modalTitle.innerHTML = `${aksi} status macet di rute ${line.id}`;
 									modalBtn.addEventListener("click", async () => {
 										let data = [];
 										for (let i = 0; i < status.length; i++) {
@@ -754,11 +770,12 @@ if (document.getElementById("map")) {
 												status: status[i].value,
 											});
 										}
-										const result = await postData(
-											`${BASE_URL}status_Rute/${action}`,
-											data
-										);
-										alert(result.message);
+										if (!flag) {
+											await postData(`${BASE_URL}status_Rute/${action}`, data);
+											flag = true;
+										}
+
+										statusRuteModal.hide();
 									});
 								});
 							}
@@ -910,25 +927,21 @@ if (document.getElementById("map")) {
 							const rute = document.getElementsByClassName("rute");
 							for (let i = 0; i < rute.length; i++) {
 								rute[i].addEventListener("click", () => {
-									let timer;
-									let time = 0;
-
-									timer = setInterval(() => {
-										time++;
-									}, 1000);
+									map.removeLayer(lines);
+									lines = L.layerGroup().addTo(map);
 									fetchData(
 										`${BASE_URL}map/rute/${posisiSekarang.getLatLng().lat}/${
 											posisiSekarang.getLatLng().lng
 										}/${rute[i].id}`
 									).then((data) => {
-										clearInterval(timer);
-										map.removeLayer(lines);
-										lines = L.layerGroup().addTo(map);
-										const path = data.path.map((path) => [
-											parseFloat(path.lat),
-											parseFloat(path.long),
-										]);
-										L.polyline(path, { color: "red" }).addTo(lines);
+										const color = ["red", "green", "blue"];
+										for (let j = 0; j < data.length; j++) {
+											const path = data[j].path.map((path) => [
+												parseFloat(path.lat),
+												parseFloat(path.long),
+											]);
+											L.polyline(path, { color: color[j] }).addTo(lines);
+										}
 									});
 								});
 							}

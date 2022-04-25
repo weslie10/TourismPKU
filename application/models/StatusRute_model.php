@@ -26,11 +26,16 @@ class StatusRute_model extends CI_Model
         $this->db->where('rute_id', $id);
         $this->db->where('hari', $hari);
         $this->db->where("jam BETWEEN $jam1 AND $jam2");
+        $this->db->group_by("jam");
         return $this->db->get($this->table)->result();
     }
 
-    function create_status_rute($dataStatusRute)
+    function create_status_rute($dataStatusRute, $rute_id)
     {
+        $this->db->where("rute_id", $rute_id);
+        $data = $this->db->get($this->table)->num_rows();
+        $this->db->reset_query();
+        if ($data > 0) return;
         return $this->db->insert_batch($this->table, $dataStatusRute);
     }
 
