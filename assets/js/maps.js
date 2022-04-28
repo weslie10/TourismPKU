@@ -923,7 +923,10 @@ if (document.getElementById("map")) {
                             <br>
                             <button class="btn btn-primary rute" id="${
 															marker.id
-														}">Route</button>`;
+														}">Route</button>
+                            <button class="btn btn-primary peta" id="${
+															marker.id
+														}">Peta Wisata</button>`;
 							const rute = document.getElementsByClassName("rute");
 							for (let i = 0; i < rute.length; i++) {
 								rute[i].addEventListener("click", () => {
@@ -941,6 +944,33 @@ if (document.getElementById("map")) {
 												parseFloat(path.long),
 											]);
 											L.polyline(path, { color: color[j] }).addTo(lines);
+										}
+									});
+								});
+							}
+							const peta = document.getElementsByClassName("peta");
+							for (let i = 0; i < peta.length; i++) {
+								peta[i].addEventListener("click", () => {
+									map.removeLayer(lines);
+									lines = L.layerGroup().addTo(map);
+									fetchData(
+										`${BASE_URL}map/peta/${posisiSekarang.getLatLng().lat}/${
+											posisiSekarang.getLatLng().lng
+										}/${peta[i].id}`
+									).then((data) => {
+										console.log(data);
+										for (let j = 0; j < data.length; j++) {
+											const path = data[j].path.map((path) => [
+												parseFloat(path.lat),
+												parseFloat(path.long),
+											]);
+											L.polyline(path, {
+												color: `#${Math.floor(
+													Math.random() * 16777215
+												).toString(16)}`,
+											})
+												.addTo(lines)
+												.bindPopup(`Jalur ${j + 1}`);
 										}
 									});
 								});

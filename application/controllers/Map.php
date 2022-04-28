@@ -74,7 +74,6 @@ class Map extends CI_Controller
 				}
 			}
 		}
-		// echo json_encode($dist);
 
 		$listPath = [];
 
@@ -119,7 +118,7 @@ class Map extends CI_Controller
 		return $titikTerdekat;
 	}
 
-	public function rute($latPosisi, $longPosisi, $id, $day = null, $time = null)
+	public function rute($latPosisi, $longPosisi, $id, $day = null, $time = null, $traffic = "true")
 	{
 		// http://localhost/TourismPKU/map/rute/0.534155/101.451561/7
 
@@ -127,7 +126,6 @@ class Map extends CI_Controller
 
 		// $listTitikRute = $this->TitikRute_model->get_all();
 		$listRute = $this->Rute_model->get_all();
-		// echo count($listRute) . "<br>";
 
 		foreach ($listRute as $rute) {
 			$rute->jarak = getDist($rute->lat_awal, $rute->long_awal, $rute->lat_akhir, $rute->long_akhir);
@@ -137,14 +135,15 @@ class Map extends CI_Controller
 
 		$tujuanTerdekat = $this->getNearestPoint($tujuan->lat_coord, $tujuan->long_coord);
 		$titikTerdekat = $this->getNearestPoint($latPosisi, $longPosisi);
-		// echo json_encode($tujuanTerdekat);
-		// echo json_encode($titikTerdekat);
+
 		if ($tujuanTerdekat == "gagal" || $titikTerdekat == "gagal") {
 			echo json_encode(
 				array(
-					"src" => 0,
-					"dest" => 0,
-					"path" => [],
+					array(
+						"src" => 0,
+						"dest" => 0,
+						"path" => [],
+					)
 				)
 			);
 		} else {
@@ -167,15 +166,12 @@ class Map extends CI_Controller
 					array_push($graph[$listRute[$i]->titik_awal], $edge);
 				}
 
-				$hasil = [];
 				$hasil = $this->bellmanFord($graph, $titikTerdekat->id, $tujuanTerdekat->id);
-				// echo json_encode($hasil) . "<hr>";
 				foreach ($hasil as $data) {
 					if ($data->dest == $tujuanTerdekat->id) {
 						$filter = $data;
 					}
 				}
-				// echo json_encode($filter);
 
 				for ($i = 0; $i < count($filter->path); $i++) {
 					$titik = $this->TitikRute_model->get_by_id($filter->path[$i]);
@@ -188,17 +184,18 @@ class Map extends CI_Controller
 					if ($time == null) {
 						$date = date("H:i:s");
 						$dateArr = explode(":", $date);
-						$time = intval($dateArr[0]);
+					} else {
+						$dateArr = explode(":", $time);
 					}
+					$hour = intval($dateArr[0]);
 
 					$waktu = $this->StatusRute_model->get_data_by_time(
 						intval($filter->path[$i]),
-						$time,
-						$time + 1,
+						$hour,
+						$hour + 1,
 						$day
 					);
 					$status = "sepi";
-					// echo "<hr>" . json_encode($waktu);
 					if (count($waktu) == 2) {
 						$statusToNumber = ["sepi" => 0, "ramai" => 1, "macet" => 2];
 						$numberToStatus = ["sepi", "ramai", "macet"];
@@ -226,7 +223,6 @@ class Map extends CI_Controller
 					if ($filter->path[$i]["status"] == $listTraffic[$count]) {
 						$idPath = $filter->path[$i]["id"];
 						for ($j = 0; $j < count($listRute); $j++) {
-							// echo $listRute[$j]->id . " " . $idPath . "<br>";
 							if ($listRute[$j]->id == $idPath || $listRute[$j]->titik_awal == $idPath || $listRute[$j]->titik_akhir == $idPath) {
 								array_splice($listRute, $j, 1);
 							}
@@ -239,7 +235,6 @@ class Map extends CI_Controller
 						if ($filter->path[$i]["status"] == $listTraffic[$count + 1]) {
 							$idPath = $filter->path[$i]["id"];
 							for ($j = 0; $j < count($listRute); $j++) {
-								// echo $listRute[$j]->id . " " . $idPath . "<br>";
 								if ($listRute[$j]->id == $idPath || $listRute[$j]->titik_awal == $idPath || $listRute[$j]->titik_akhir == $idPath) {
 									array_splice($listRute, $j, 1);
 								}
@@ -249,18 +244,69 @@ class Map extends CI_Controller
 					}
 				}
 				array_push($allPath, $filter);
-				if (!$check) {
-					break;
-				}
+				if (!$check) break;
 				$count++;
-				if ($count == 3) {
-					break;
+				if ($count == 3) break;
+				if ($traffic != "true") break;
+			}
+			if ($traffic == "true") {
+				echo json_encode($allPath);
+			} else {
+				echo json_encode($allPath[0]);
+			}
+		}
+	}
+
+	public function peta($latPosisi, $longPosisi, $id, $day = "senin", $time = "7:10")
+	{
+		header('Content-Type: application/json');
+
+		$peta = [];
+
+		$listWisata = $this->Wisata_model->get_all();
+
+		$selectedWisata = $this->Wisata_model->get_by_id($id);
+		$idx = array_search($selectedWisata, $listWisata);
+		array_splice($listWisata, $idx, 1);
+
+		$api_url = base_url("/map/rute/$latPosisi/$longPosisi/$selectedWisata->id/$day/$time/false");
+		$json_data = file_get_contents($api_url);
+		$response_data = json_decode($json_data);
+
+		array_push($peta, $response_data);
+		$latPosisi = $selectedWisata->lat_coord;
+		$longPosisi = $selectedWisata->long_coord;
+
+		while (count($listWisata) > 0) {
+			$tempWisata = $listWisata;
+			foreach ($tempWisata as $wisata) {
+				$wisata->jarak = getDist($wisata->lat_coord, $wisata->long_coord, $latPosisi, $longPosisi);
+			}
+			for ($i = 0; $i < count($tempWisata); $i++) {
+				for ($j = 0; $j < count($tempWisata) - 1; $j++) {
+					if (intval($tempWisata[$j]->jarak) > intval($tempWisata[$j + 1]->jarak)) {
+						$temp = $tempWisata[$j];
+						$tempWisata[$j] = $tempWisata[$j + 1];
+						$tempWisata[$j + 1] = $temp;
+					}
 				}
 			}
 
-			echo json_encode($allPath);
+			$selectedWisata = $tempWisata[0];
+			$idx = array_search($selectedWisata, $listWisata);
+			array_splice($listWisata, $idx, 1);
+
+			$api_url = base_url("/map/rute/$latPosisi/$longPosisi/$selectedWisata->id/$day/$time/false");
+			$json_data = file_get_contents($api_url);
+			$response_data = json_decode($json_data);
+
+			array_push($peta, $response_data);
+			$latPosisi = $selectedWisata->lat_coord;
+			$longPosisi = $selectedWisata->long_coord;
 		}
+		echo json_encode($peta);
 	}
 }
 
 // 208, 8, 6, 48, 5, 15, 229, 230, 43, 42, 17, 18, 37, 38, 116, 117, 115, 226, 227, 1253, 923, 924
+// 7,8,9,10,11,21,22,23,24,25,26,27,28,29,32,19,20,15,5,13,16,17,18,14,2,3,4,12,1,31
