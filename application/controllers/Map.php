@@ -19,14 +19,14 @@ class Map extends CI_Controller
 		$this->load->model('Wisata_model');
 	}
 
-	public function index()
-	{
-		$data = [
-			"title" => "Map",
-			"active" => "map",
-		];
-		loadViews($this, 'map', $data);
-	}
+	// public function index()
+	// {
+	// 	$data = [
+	// 		"title" => "Map",
+	// 		"active" => "map",
+	// 	];
+	// 	loadViews($this, 'map', $data);
+	// }
 
 	private function printPath($parent, $vertex, $source)
 	{

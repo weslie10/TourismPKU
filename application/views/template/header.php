@@ -94,12 +94,12 @@
                 </a>
             </li>
 
-            <li class="nav-item <?= ($active == "map") ? "active" : "" ?>">
+            <!-- <li class="nav-item <?= ($active == "map") ? "active" : "" ?>">
                 <a class="nav-link" href="<?= site_url('map') ?>">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Maps</span>
                 </a>
-            </li>
+            </li> -->
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">

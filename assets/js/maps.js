@@ -515,29 +515,7 @@ if (document.getElementById("map")) {
                             <p>No Telp: ${
 															marker.no_telp ? marker.no_telp : "tidak ada"
 														}</p>
-                            <p>Kategori: ${marker.kategori}</p>
-                            <br>
-                            <button class="btn btn-primary rute" id="${
-															marker.id
-														}">Route</button>
-                            `;
-							const rute = document.getElementsByClassName("rute");
-							for (let i = 0; i < rute.length; i++) {
-								rute[i].addEventListener("click", () => {
-									fetchData(
-										`${BASE_URL}map/rute/0.534155/101.451561/${rute[i].id}`
-									).then((data) => {
-										console.log(data);
-										map.removeLayer(lines);
-										lines = L.layerGroup().addTo(map);
-										const path = data.path.map((path) => [
-											parseFloat(path.lat),
-											parseFloat(path.long),
-										]);
-										L.polyline(path, { color: "red" }).addTo(lines);
-									});
-								});
-							}
+                            <p>Kategori: ${marker.kategori}</p>`;
 						});
 					});
 				}
