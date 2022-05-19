@@ -19,15 +19,6 @@ class Map extends CI_Controller
 		$this->load->model('Wisata_model');
 	}
 
-	// public function index()
-	// {
-	// 	$data = [
-	// 		"title" => "Map",
-	// 		"active" => "map",
-	// 	];
-	// 	loadViews($this, 'map', $data);
-	// }
-
 	private function printPath($parent, $vertex, $source)
 	{
 		while (true) {
@@ -83,10 +74,8 @@ class Map extends CI_Controller
 				$result->dest = $i;
 				$result->src = intval($src);
 				$this->paths = array();
-				// echo "The distance of vertex " . $i . " from vertex " . $src . " is " . $dist[$i] . ". Its path is [";
 				$this->printPath($parent, $i, $src);
 				$result->path = $this->paths;
-				// echo "]<br>";
 				array_push($listPath, $result);
 			}
 		}
@@ -120,11 +109,8 @@ class Map extends CI_Controller
 
 	public function rute($latPosisi, $longPosisi, $id, $day = null, $time = null, $traffic = "true")
 	{
-		// http://localhost/TourismPKU/map/rute/0.534155/101.451561/7
-
 		header('Content-Type: application/json');
 
-		// $listTitikRute = $this->TitikRute_model->get_all();
 		$listRute = $this->Rute_model->get_all();
 
 		foreach ($listRute as $rute) {
@@ -307,6 +293,3 @@ class Map extends CI_Controller
 		echo json_encode($peta);
 	}
 }
-
-// 208, 8, 6, 48, 5, 15, 229, 230, 43, 42, 17, 18, 37, 38, 116, 117, 115, 226, 227, 1253, 923, 924
-// 7,8,9,10,11,21,22,23,24,25,26,27,28,29,32,19,20,15,5,13,16,17,18,14,2,3,4,12,1,31

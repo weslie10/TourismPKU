@@ -102,7 +102,6 @@ class Gambar extends CI_Controller
 		$new_name = $wisata->nama . "-" . $gambar . "." . $ext;
 		$new_name = str_replace(" ", "_", $new_name);
 		$new_name = str_replace(["'", "/"], "", $new_name);
-		// $new_name = time() . str_replace(' ', '_', $_FILES[$type]['name']);
 
 		$config['upload_path']          = 'uploads/';
 		$config['allowed_types']        = 'jpg|jpeg|png';
